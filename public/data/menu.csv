@@ -1,0 +1,9 @@
+id,name,category,basePrice,currency,description
+"margherita-pizza","Handcrafted Margherita Pizza","Main",540.00,"INR","Classic sourdough pizza with San Marzano tomatoes, fresh mozzarella, and sweet basil"
+"lasagna-bolognese","Signature Lasagna Bolognese","Pasta",640.00,"INR","Layered semolina pasta with slow-cooked ragu, bechamel, parmesan, and mozzarella"
+"rosemary-focaccia","House Rosemary Focaccia & Herb Dip","Appetizer",260.00,"INR","Wood-fired focaccia with sea salt, fresh rosemary, and whipped garlic yogurt dip"
+"burrata-salad","Artisanal Burrata & Heirloom Salad","Appetizer",540.00,"INR","Fresh burrata ball with heirloom tomatoes, toasted pine nuts, EVOO, and microgreens"
+"pan-seared-duck","Pan-Seared Duck Breast","Main",690.00,"INR","Crispy skin duck breast with spiced plum port reduction and buttered parsnip puree"
+"truffle-tenderloin","Truffle Butter Tenderloin Steak","Main",980.00,"INR","Prime beef tenderloin medallion basted in European butter and white truffle oil with baby potatoes"
+"prawn-risotto","Tiger Prawn Saffron Risotto","Main",790.00,"INR","Arborio rice cooked in saffron broth with sea tiger prawns, EVOO, butter, and parmesan"
+"classic-tiramisu","Classic Artisanal Tiramisu","Dessert",360.00,"INR","Traditional layered dessert of Italian mascarpone, farm eggs, espresso ladyfingers, and cocoa"
