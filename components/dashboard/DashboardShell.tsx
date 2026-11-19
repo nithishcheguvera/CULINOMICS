@@ -8,7 +8,7 @@ interface DashboardShellProps {
 }
 
 export function DashboardShell({ children }: DashboardShellProps) {
-  const { activeTab, setActiveTab, isLoading, error } = useAppStore();
+  const { activeTab, setActiveTab, isLoading, error, loadDataset } = useAppStore();
 
   const navItems: { id: DashboardTab; label: string; icon: string }[] = [
     { id: "all", label: "Full Dashboard", icon: "📑" },
@@ -88,9 +88,22 @@ export function DashboardShell({ children }: DashboardShellProps) {
         )}
 
         {error && (
-          <div className="p-4 rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-900 text-red-800 dark:text-red-200 my-6">
-            <h3 className="text-sm font-semibold">Engine Initialization Error</h3>
-            <p className="text-xs mt-1">{error}</p>
+          <div className="p-6 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-900 text-red-800 dark:text-red-200 my-6 text-center space-y-3">
+            <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center mx-auto text-xl">
+              ⚠️
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold">Dataset Loading or Engine Initialization Error</h3>
+              <p className="text-xs text-red-600 dark:text-red-300 mt-1 max-w-md mx-auto">{error}</p>
+            </div>
+            <div>
+              <button
+                onClick={() => loadDataset()}
+                className="px-4 py-2 rounded-lg text-xs font-semibold bg-red-600 hover:bg-red-700 text-white shadow-sm transition-colors"
+              >
+                Retry Data Loading
+              </button>
+            </div>
           </div>
         )}
 
@@ -100,7 +113,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
       {/* Footer */}
       <footer className="border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 py-4 text-center text-xs text-neutral-500 dark:text-neutral-400">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>Osteria Bella • Stage 3 2D Financial Dashboard</span>
+          <span>Osteria Bella • Stage 5 Integrated Dashboard & 3D Explorer</span>
           <span>Powered by Deterministic TypeScript Engine • Verified Vitest Math</span>
         </div>
       </footer>

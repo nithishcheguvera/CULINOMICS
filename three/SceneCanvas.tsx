@@ -7,7 +7,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { MenuEngineeringCategory } from "@/engine";
 
 export function SceneCanvas() {
-  const { selectedDishId, menuEngineering, setActiveTab } = useAppStore();
+  const { selectedDishId, setSelectedDishId, menuEngineering, setActiveTab } = useAppStore();
 
   const selectedDish = menuEngineering?.dishes.find((d) => d.dishId === selectedDishId);
 
@@ -55,12 +55,27 @@ export function SceneCanvas() {
                 Vol: <strong>{selectedDish.averageMonthlyVolume}</strong>/mo • Contrib: <strong>₹{selectedDish.averageContributionMargin.toFixed(2)}</strong>
               </p>
             </div>
-            <button
-              onClick={() => setActiveTab("replay")}
-              className="text-xs font-medium px-2.5 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700 transition-colors"
-            >
-              Inspect in Replay →
-            </button>
+            <div className="flex items-center space-x-2">
+              <select
+                id="three-dish-select"
+                aria-label="Select dish in 3D Explorer"
+                value={selectedDishId}
+                onChange={(e) => setSelectedDishId(e.target.value)}
+                className="text-xs px-2 py-1 rounded bg-neutral-800 text-neutral-200 border border-neutral-700 focus:outline-none cursor-pointer"
+              >
+                {menuEngineering?.dishes.map((d) => (
+                  <option key={d.dishId} value={d.dishId}>
+                    {d.dishName}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={() => setActiveTab("replay")}
+                className="text-xs font-medium px-2.5 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700 transition-colors whitespace-nowrap"
+              >
+                Inspect in Replay →
+              </button>
+            </div>
           </div>
         ) : (
           <div className="bg-neutral-900/80 backdrop-blur border border-neutral-800 px-3 py-1.5 rounded-md text-xs text-neutral-400">
