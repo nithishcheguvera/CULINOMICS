@@ -16,6 +16,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
     { id: "matrix", label: "Menu Engineering", icon: "⭐" },
     { id: "profitability", label: "Dish Profitability", icon: "💰" },
     { id: "replay", label: "Recipe Replay", icon: "🔄" },
+    { id: "explorer3d", label: "3D Explorer", icon: "🧊" },
   ];
 
   return (

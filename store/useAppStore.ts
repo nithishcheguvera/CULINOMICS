@@ -15,7 +15,7 @@ import {
   SalesAnalysis,
 } from "@/engine";
 
-export type DashboardTab = "all" | "overview" | "matrix" | "profitability" | "replay";
+export type DashboardTab = "all" | "overview" | "matrix" | "profitability" | "replay" | "explorer3d";
 
 export interface AnnualKpiSummary {
   annualRevenue: number;

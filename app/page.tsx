@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import dynamic from "next/dynamic";
 import { useAppStore } from "@/store/useAppStore";
 import {
   DashboardShell,
@@ -10,6 +11,16 @@ import {
   DishProfitabilitySection,
   RecipeReplaySection,
 } from "@/components/dashboard";
+import { ScenePlaceholder } from "@/three/ScenePlaceholder";
+
+// Client-side only dynamic import with SSR disabled per architectural invariants
+const SceneExplorer = dynamic(
+  () => import("@/three/SceneExplorer").then((mod) => mod.SceneExplorer),
+  {
+    ssr: false,
+    loading: () => <ScenePlaceholder />,
+  }
+);
 
 export default function HomePage() {
   const { loadDataset, activeTab, dataset } = useAppStore();
@@ -47,6 +58,13 @@ export default function HomePage() {
           {(activeTab === "all" || activeTab === "replay") && (
             <div id="recipe-replay" className="scroll-mt-24">
               <RecipeReplaySection />
+            </div>
+          )}
+
+          {/* 3D Explorer - Mounted conditionally only when the user selects the 3D tab */}
+          {activeTab === "explorer3d" && (
+            <div id="3d-explorer" className="scroll-mt-24">
+              <SceneExplorer />
             </div>
           )}
         </div>
