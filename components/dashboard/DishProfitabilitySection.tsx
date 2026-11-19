@@ -109,12 +109,24 @@ export function DishProfitabilitySection() {
                       {formatINR(dish.totalContribution)}
                     </td>
                     <td className="py-3 px-3 text-center">
-                      <button
-                        onClick={() => handleSelectDish(dish.dishId)}
-                        className="px-2.5 py-1 rounded-md text-xs font-medium bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 transition-colors"
-                      >
-                        Replay
-                      </button>
+                      <div className="flex items-center justify-center gap-1.5">
+                        <button
+                          onClick={() => handleSelectDish(dish.dishId)}
+                          className="px-2 py-1 rounded-md text-xs font-medium bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 transition-colors"
+                        >
+                          Replay
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedDishId(dish.dishId);
+                            setActiveTab("simulator");
+                          }}
+                          className="px-2 py-1 rounded-md text-xs font-medium bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 transition-colors"
+                          title="Simulate in Menu Surgery"
+                        >
+                          Simulate 🔬
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );

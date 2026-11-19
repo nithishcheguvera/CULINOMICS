@@ -12,6 +12,7 @@ import {
   RecipeReplaySection,
 } from "@/components/dashboard";
 import { SmartImportSection } from "@/components/import";
+import { MenuSurgerySection } from "@/components/simulator";
 import { ScenePlaceholder } from "@/three/ScenePlaceholder";
 
 // Client-side only dynamic import with SSR disabled per architectural invariants
@@ -66,6 +67,13 @@ export default function HomePage() {
           {(activeTab === "all" || activeTab === "replay") && (
             <div id="recipe-replay" className="scroll-mt-24">
               <RecipeReplaySection />
+            </div>
+          )}
+
+          {/* Menu Surgery Simulator */}
+          {(activeTab === "all" || activeTab === "simulator") && (
+            <div id="menu-surgery" className="scroll-mt-24">
+              <MenuSurgerySection />
             </div>
           )}
 

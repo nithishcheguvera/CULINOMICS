@@ -149,10 +149,22 @@ export function MenuMatrixSection() {
                         </span>
                       </div>
                     </div>
-                    <div className="text-right flex-shrink-0">
-                      <span className="inline-block text-[11px] font-medium px-2 py-0.5 rounded bg-neutral-200/70 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300">
+                    <div className="text-right flex-shrink-0 flex items-center gap-2">
+                      <span className="hidden sm:inline-block text-[11px] font-medium px-2 py-0.5 rounded bg-neutral-200/70 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300">
                         {q.actionLabel}
                       </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedDishId(dish.dishId);
+                          setActiveTab("simulator");
+                        }}
+                        className="text-[11px] font-medium px-2 py-0.5 rounded border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:bg-neutral-900 hover:text-white dark:hover:bg-white dark:hover:text-neutral-900 text-neutral-800 dark:text-neutral-200 transition-colors cursor-pointer"
+                        title="Simulate price, cost, and volume in Menu Surgery"
+                      >
+                        Simulate 🔬
+                      </button>
                     </div>
                   </div>
                 ))

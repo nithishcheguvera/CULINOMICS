@@ -8,3 +8,5 @@ export * from "./recipeReplay";
 export * from "./salesAnalysis";
 export * from "./menuEngineering";
 export * from "./inflationImpact";
+export * from "./simulator";
+

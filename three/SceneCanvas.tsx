@@ -75,6 +75,12 @@ export function SceneCanvas() {
               >
                 Inspect in Replay →
               </button>
+              <button
+                onClick={() => setActiveTab("simulator")}
+                className="text-xs font-medium px-2.5 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700 transition-colors whitespace-nowrap"
+              >
+                Simulate 🔬
+              </button>
             </div>
           </div>
         ) : (

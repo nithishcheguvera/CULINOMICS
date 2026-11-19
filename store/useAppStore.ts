@@ -13,9 +13,13 @@ import {
   InflationImpactDish,
   calculateSalesAnalysis,
   SalesAnalysis,
+  DishSimulationScenario,
+  DishSimulationResult,
+  createInitialScenarioForDish,
+  simulateDishScenario,
 } from "@/engine";
 
-export type DashboardTab = "all" | "overview" | "matrix" | "profitability" | "replay" | "explorer3d" | "import";
+export type DashboardTab = "all" | "overview" | "matrix" | "profitability" | "replay" | "explorer3d" | "import" | "simulator";
 
 export type DatasetMode = "demo" | "custom";
 
@@ -119,12 +123,19 @@ export interface AppState {
   salesAnalysis: SalesAnalysis | null;
   kpis: AnnualKpiSummary | null;
 
+  // Menu Surgery Simulator state (Stage 7)
+  activeScenario: DishSimulationScenario | null;
+  scenarioResult: DishSimulationResult | null;
+
   // Actions
   loadDataset: () => Promise<void>;
   applyCustomDataset: (candidateDataset: StoryDataset) => void;
   restoreDemoDataset: () => Promise<void>;
   setActiveTab: (tab: DashboardTab) => void;
   setSelectedDishId: (dishId: string) => void;
+  setScenarioDish: (dishId: string) => void;
+  updateScenario: (scenario: DishSimulationScenario) => void;
+  resetScenario: () => void;
 }
 
 /**
@@ -153,6 +164,40 @@ export function formatINR(value: number, options?: { showDecimals?: boolean; com
   }).format(value);
 }
 
+/**
+ * Pure helper to compute initial or updated simulation state for a dish.
+ */
+function computeScenarioState(
+  dishId: string,
+  dishProfitability: DishProfitability[],
+  menuEngineering: MenuEngineeringResult | null,
+  monthCount: number,
+  existingScenario?: DishSimulationScenario | null
+): { activeScenario: DishSimulationScenario | null; scenarioResult: DishSimulationResult | null } {
+  if (!menuEngineering || dishProfitability.length === 0) {
+    return { activeScenario: null, scenarioResult: null };
+  }
+
+  const targetDish = dishProfitability.find((d) => d.dishId === dishId) || dishProfitability[0];
+  if (!targetDish) {
+    return { activeScenario: null, scenarioResult: null };
+  }
+
+  const scenario =
+    existingScenario && existingScenario.dishId === targetDish.dishId
+      ? existingScenario
+      : createInitialScenarioForDish(targetDish.dishId, dishProfitability, menuEngineering, monthCount);
+
+  const scenarioResult = simulateDishScenario(
+    dishProfitability,
+    menuEngineering,
+    scenario,
+    monthCount
+  );
+
+  return { activeScenario: scenario, scenarioResult };
+}
+
 export const useAppStore = create<AppState>((set, get) => ({
   dataset: null,
   demoDatasetBackup: null,
@@ -172,9 +217,52 @@ export const useAppStore = create<AppState>((set, get) => ({
   salesAnalysis: null,
   kpis: null,
 
+  activeScenario: null,
+  scenarioResult: null,
+
   setActiveTab: (activeTab) => set({ activeTab }),
 
-  setSelectedDishId: (selectedDishId) => set({ selectedDishId }),
+  setSelectedDishId: (selectedDishId) => {
+    const { dishProfitability, menuEngineering, monthlyPerformance } = get();
+    const monthCount = monthlyPerformance.length || 12;
+    const simState = computeScenarioState(
+      selectedDishId,
+      dishProfitability,
+      menuEngineering,
+      monthCount
+    );
+    set({ selectedDishId, ...simState });
+  },
+
+  setScenarioDish: (dishId) => {
+    get().setSelectedDishId(dishId);
+  },
+
+  updateScenario: (scenario) => {
+    const { dishProfitability, menuEngineering, monthlyPerformance } = get();
+    if (!menuEngineering) return;
+    const monthCount = monthlyPerformance.length || 12;
+    const scenarioResult = simulateDishScenario(
+      dishProfitability,
+      menuEngineering,
+      scenario,
+      monthCount
+    );
+    set({ activeScenario: scenario, scenarioResult });
+  },
+
+  resetScenario: () => {
+    const { selectedDishId, activeScenario, dishProfitability, menuEngineering, monthlyPerformance } = get();
+    const dishId = activeScenario?.dishId || selectedDishId;
+    const monthCount = monthlyPerformance.length || 12;
+    const simState = computeScenarioState(
+      dishId,
+      dishProfitability,
+      menuEngineering,
+      monthCount
+    );
+    set(simState);
+  },
 
   loadDataset: async () => {
     // Avoid redundant fetches if demo dataset is already loaded in demo mode
@@ -185,10 +273,18 @@ export const useAppStore = create<AppState>((set, get) => ({
     if (cached) {
       const analytics = computeAnalyticsForDataset(cached);
       const defaultDish = cached.menu[0]?.id || "truffle-tenderloin";
+      const monthCount = analytics.monthlyPerformance.length || 12;
+      const simState = computeScenarioState(
+        defaultDish,
+        analytics.dishProfitability,
+        analytics.menuEngineering,
+        monthCount
+      );
       set({
         dataset: cached,
         datasetMode: "demo",
         selectedDishId: defaultDish,
+        ...simState,
         ...analytics,
         isLoading: false,
         error: null,
@@ -201,12 +297,20 @@ export const useAppStore = create<AppState>((set, get) => ({
       const dataset = await loadStoryDatasetFromBrowser();
       const analytics = computeAnalyticsForDataset(dataset);
       const defaultDish = dataset.menu[0]?.id || "truffle-tenderloin";
+      const monthCount = analytics.monthlyPerformance.length || 12;
+      const simState = computeScenarioState(
+        defaultDish,
+        analytics.dishProfitability,
+        analytics.menuEngineering,
+        monthCount
+      );
 
       set({
         dataset,
         demoDatasetBackup: dataset,
         datasetMode: "demo",
         selectedDishId: defaultDish,
+        ...simState,
         isLoading: false,
         error: null,
         ...analytics,
@@ -225,12 +329,20 @@ export const useAppStore = create<AppState>((set, get) => ({
     try {
       const analytics = computeAnalyticsForDataset(candidateDataset);
       const firstDish = candidateDataset.menu[0]?.id || "truffle-tenderloin";
+      const monthCount = analytics.monthlyPerformance.length || 12;
+      const simState = computeScenarioState(
+        firstDish,
+        analytics.dishProfitability,
+        analytics.menuEngineering,
+        monthCount
+      );
 
       set({
         dataset: candidateDataset,
         customDataset: candidateDataset,
         datasetMode: "custom",
         selectedDishId: firstDish,
+        ...simState,
         error: null,
         ...analytics,
       });
@@ -251,11 +363,21 @@ export const useAppStore = create<AppState>((set, get) => ({
         demoData = await loadStoryDatasetFromBrowser();
       }
       const analytics = computeAnalyticsForDataset(demoData);
+      const defaultDish = "truffle-tenderloin";
+      const monthCount = analytics.monthlyPerformance.length || 12;
+      const simState = computeScenarioState(
+        defaultDish,
+        analytics.dishProfitability,
+        analytics.menuEngineering,
+        monthCount
+      );
+
       set({
         dataset: demoData,
         demoDatasetBackup: demoData,
         datasetMode: "demo",
-        selectedDishId: "truffle-tenderloin",
+        selectedDishId: defaultDish,
+        ...simState,
         isLoading: false,
         error: null,
         ...analytics,
