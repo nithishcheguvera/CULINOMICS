@@ -1,3 +1,5 @@
+import { MonthlyFinancialPerformance, SalesAnalysis, AnnualKpiMetrics } from "./types";
+
 /**
  * Core Financial Math Primitive (Pure TypeScript)
  * Architecture rule: NO UI imports in /engine.
@@ -21,5 +23,28 @@ export function calculateProfitSummary(revenue: number, cost: number): ProfitSum
     cost,
     grossProfit,
     marginPercentage,
+  };
+}
+
+/**
+ * Computes restaurant-level annual financial KPI summary metrics.
+ * Deterministic IEEE-754 precision math.
+ */
+export function calculateAnnualKpis(
+  monthlyPerformance: MonthlyFinancialPerformance[],
+  salesAnalysis: SalesAnalysis
+): AnnualKpiMetrics {
+  const annualRevenue = monthlyPerformance.reduce((sum, m) => sum + m.revenue, 0);
+  const annualIngredientCost = monthlyPerformance.reduce((sum, m) => sum + m.ingredientCost, 0);
+  const annualGrossContribution = annualRevenue - annualIngredientCost;
+  const overallMarginPercentage = annualRevenue > 0 ? (annualGrossContribution / annualRevenue) * 100 : 0;
+  const totalSalesVolume = salesAnalysis.totalVolumeAllTime;
+
+  return {
+    annualRevenue,
+    annualIngredientCost,
+    annualGrossContribution,
+    overallMarginPercentage,
+    totalSalesVolume,
   };
 }

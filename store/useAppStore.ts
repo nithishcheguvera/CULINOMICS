@@ -13,6 +13,8 @@ import {
   InflationImpactDish,
   calculateSalesAnalysis,
   SalesAnalysis,
+  calculateAnnualKpis,
+  AnnualKpiMetrics,
   DishSimulationScenario,
   DishSimulationResult,
   createInitialScenarioForDish,
@@ -96,11 +98,7 @@ export function computeAnalyticsForDataset(dataset: StoryDataset): ComputedAnaly
 
   const timelineDates = Array.from(new Set(dataset.ingredientPrices.map((p) => p.date))).sort();
 
-  const annualRevenue = monthlyPerformance.reduce((sum, m) => sum + m.revenue, 0);
-  const annualIngredientCost = monthlyPerformance.reduce((sum, m) => sum + m.ingredientCost, 0);
-  const annualGrossContribution = annualRevenue - annualIngredientCost;
-  const overallMarginPercentage = annualRevenue > 0 ? (annualGrossContribution / annualRevenue) * 100 : 0;
-  const totalSalesVolume = salesAnalysis.totalVolumeAllTime;
+  const kpis = calculateAnnualKpis(monthlyPerformance, salesAnalysis);
 
   return {
     monthlyPerformance,
@@ -111,13 +109,7 @@ export function computeAnalyticsForDataset(dataset: StoryDataset): ComputedAnaly
     salesAnalysis,
     ingredientInflation,
     timelineDates,
-    kpis: {
-      annualRevenue,
-      annualIngredientCost,
-      annualGrossContribution,
-      overallMarginPercentage,
-      totalSalesVolume,
-    },
+    kpis,
   };
 }
 
@@ -169,29 +161,9 @@ export interface AppState {
 
 /**
  * Standard utility to format numbers as Indian Rupees (INR, ₹).
+ * Re-exported from pure shared utility to support server/fact-factory execution.
  */
-export function formatINR(value: number, options?: { showDecimals?: boolean; compact?: boolean }): string {
-  const showDecimals = options?.showDecimals ?? false;
-
-  if (options?.compact) {
-    if (Math.abs(value) >= 10000000) {
-      return `₹${(value / 10000000).toFixed(2)} Cr`;
-    }
-    if (Math.abs(value) >= 100000) {
-      return `₹${(value / 100000).toFixed(2)} L`;
-    }
-    if (Math.abs(value) >= 1000) {
-      return `₹${(value / 1000).toFixed(1)}k`;
-    }
-  }
-
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: showDecimals ? 2 : 0,
-    maximumFractionDigits: showDecimals ? 2 : 0,
-  }).format(value);
-}
+export { formatINR } from "@/utils/formatCurrency";
 
 /**
  * Pure helper to compute initial or updated simulation state for a dish.

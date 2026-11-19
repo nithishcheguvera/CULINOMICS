@@ -43,6 +43,30 @@ export interface ConvertUnitOptions {
  * Deterministic, dimension-aware unit conversion function.
  * Internal calculations preserve full floating-point precision without premature rounding.
  */
+export function validateUnitCompatibility(
+  fromUnit: Unit,
+  toUnit: Unit,
+  options?: ConvertUnitOptions
+): boolean {
+  if (fromUnit === toUnit) return true;
+  try {
+    const fromDim = getUnitDimension(fromUnit);
+    const toDim = getUnitDimension(toUnit);
+    if (fromDim === toDim) {
+      if (fromDim === "count") {
+        return Boolean(options?.itemsPerPortion && options.itemsPerPortion > 0);
+      }
+      return true;
+    }
+    if ((fromDim === "mass" && toDim === "volume") || (fromDim === "volume" && toDim === "mass")) {
+      return Boolean(options?.densityGramsPerMl && options.densityGramsPerMl > 0);
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 export function convertUnit(
   quantity: number,
   fromUnit: Unit,

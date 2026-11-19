@@ -11,6 +11,14 @@ export interface MonthlyFinancialPerformance {
   grossMarginPercentage: number;
 }
 
+export interface AnnualKpiMetrics {
+  annualRevenue: number;
+  annualIngredientCost: number;
+  annualGrossContribution: number;
+  overallMarginPercentage: number;
+  totalSalesVolume: number;
+}
+
 export interface DishProfitability {
   dishId: string;
   dishName: string;
