@@ -5,3 +5,4 @@ export * from "./menu";
 export * from "./recipe";
 export * from "./ingredient";
 export * from "./sales";
+export * from "./extraction";

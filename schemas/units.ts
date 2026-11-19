@@ -105,3 +105,21 @@ export function convertUnit(
 
   throw new Error(`Incompatible unit dimensions: cannot convert '${fromUnit}' (${fromDim}) to '${toUnit}' (${toDim})`);
 }
+
+/**
+ * Normalizes common variations of unit strings into canonical Unit types.
+ */
+export function normalizeUnit(rawUnit: string): Unit {
+  const clean = (rawUnit || "").toLowerCase().trim();
+  if (["kg", "kilogram", "kilograms", "kgs"].includes(clean)) return "kg";
+  if (["g", "gram", "grams", "gm"].includes(clean)) return "g";
+  if (["oz", "ounce", "ounces"].includes(clean)) return "oz";
+  if (["lb", "pound", "pounds", "lbs"].includes(clean)) return "lb";
+  if (["l", "liter", "liters", "litre", "litres", "ltr"].includes(clean)) return "l";
+  if (["ml", "milliliter", "milliliters", "millilitre", "millilitres"].includes(clean)) return "ml";
+  if (["fl_oz", "floz", "fl oz", "fluid ounce", "fluid ounces"].includes(clean)) return "fl_oz";
+  if (["item", "items", "pc", "pcs", "piece", "pieces", "unit", "units"].includes(clean)) return "item";
+  if (["portion", "portions", "serving", "servings"].includes(clean)) return "portion";
+  return "item";
+}
+

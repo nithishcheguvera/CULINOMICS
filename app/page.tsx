@@ -11,6 +11,7 @@ import {
   DishProfitabilitySection,
   RecipeReplaySection,
 } from "@/components/dashboard";
+import { SmartImportSection } from "@/components/import";
 import { ScenePlaceholder } from "@/three/ScenePlaceholder";
 
 // Client-side only dynamic import with SSR disabled per architectural invariants
@@ -34,7 +35,14 @@ export default function HomePage() {
       {dataset && (
         <div className="space-y-10">
           {/* Executive KPI Summary Cards */}
-          <KpiCards />
+          {activeTab !== "explorer3d" && activeTab !== "import" && <KpiCards />}
+
+          {/* Smart Import & Multimodal Extraction */}
+          {activeTab === "import" && (
+            <div id="smart-import" className="scroll-mt-24">
+              <SmartImportSection />
+            </div>
+          )}
 
           {/* Sectional Views based on Active Tab */}
           {(activeTab === "all" || activeTab === "overview") && (

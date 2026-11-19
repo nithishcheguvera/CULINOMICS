@@ -8,7 +8,7 @@ interface DashboardShellProps {
 }
 
 export function DashboardShell({ children }: DashboardShellProps) {
-  const { activeTab, setActiveTab, isLoading, error, loadDataset } = useAppStore();
+  const { activeTab, setActiveTab, isLoading, error, loadDataset, datasetMode } = useAppStore();
 
   const navItems: { id: DashboardTab; label: string; icon: string }[] = [
     { id: "all", label: "Full Dashboard", icon: "📑" },
@@ -16,6 +16,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
     { id: "matrix", label: "Menu Engineering", icon: "⭐" },
     { id: "profitability", label: "Dish Profitability", icon: "💰" },
     { id: "replay", label: "Recipe Replay", icon: "🔄" },
+    { id: "import", label: "Smart Import", icon: "📥" },
     { id: "explorer3d", label: "3D Explorer", icon: "🧊" },
   ];
 
@@ -50,7 +51,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
                 <span>Currency: <strong className="text-neutral-900 dark:text-white">INR (₹)</strong></span>
               </div>
               <div className="hidden sm:flex items-center px-2.5 py-1 rounded-md bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-xs font-medium text-neutral-600 dark:text-neutral-300">
-                <span>Dataset: <strong>Canonical 2025</strong></span>
+                <span>Dataset: <strong className={datasetMode === "custom" ? "text-purple-600 dark:text-purple-400 font-bold" : ""}>{datasetMode === "custom" ? "Custom Imported" : "Canonical 2025"}</strong></span>
               </div>
             </div>
           </div>
