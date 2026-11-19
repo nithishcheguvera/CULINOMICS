@@ -70,7 +70,10 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
     const extractionType = (formData.get("extractionType") as string) || "recipe";
-    const allowMockFallback = formData.get("allowMock") === "true" || req.nextUrl.searchParams.get("mock") === "true";
+    const isProduction = process.env.NODE_ENV === "production";
+    const allowMockFallback =
+      !isProduction &&
+      (formData.get("allowMock") === "true" || req.nextUrl.searchParams.get("mock") === "true");
 
     if (!file) {
       return NextResponse.json({ success: false, error: "No image file provided in request." }, { status: 400 });
@@ -168,6 +171,16 @@ export async function POST(req: NextRequest) {
  * Returns clean mock extraction data for testing and offline demo execution.
  */
 function handleMockResponse(extractionType: string) {
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Simulated extraction fallback is strictly forbidden in production environments.",
+      },
+      { status: 403 }
+    );
+  }
+
   if (extractionType === "invoice") {
     return NextResponse.json({
       success: true,

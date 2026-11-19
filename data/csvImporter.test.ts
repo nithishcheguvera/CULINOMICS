@@ -1,4 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { NextRequest } from "next/server";
+import { POST as extractRouteHandler } from "@/app/api/extract/route";
 import {
   validateSalesCsv,
   validateRecipesCsv,
@@ -254,6 +256,110 @@ describe("Stage 6: Gemini Multimodal Schemas & Domain Converters", () => {
       expect(priceRecords[0].ingredientId).toBe("black-truffle");
       expect(priceRecords[0].price).toBe(15000);
       expect(priceRecords[0].currency).toBe("INR");
+    });
+  });
+
+  describe("Gemini Production Security & Missing Key Handling", () => {
+    const originalEnv = process.env.NODE_ENV;
+    const originalApiKey = process.env.GEMINI_API_KEY;
+
+    beforeEach(() => {
+      delete process.env.GEMINI_API_KEY;
+    });
+
+    afterEach(() => {
+      process.env.NODE_ENV = originalEnv;
+      if (originalApiKey !== undefined) {
+        process.env.GEMINI_API_KEY = originalApiKey;
+      } else {
+        delete process.env.GEMINI_API_KEY;
+      }
+    });
+
+    it("returns HTTP 503 Service Unavailable when GEMINI_API_KEY is missing and allowMock is false", async () => {
+      process.env.NODE_ENV = "development";
+      const formData = new FormData();
+      const dummyFile = new File([new Uint8Array([1, 2, 3])], "sample.png", { type: "image/png" });
+      formData.append("file", dummyFile);
+      formData.append("extractionType", "recipe");
+      formData.append("allowMock", "false");
+
+      const req = new NextRequest("http://localhost:3000/api/extract", {
+        method: "POST",
+        body: formData,
+      });
+
+      const res = await extractRouteHandler(req);
+      expect(res.status).toBe(503);
+
+      const json = await res.json();
+      expect(json.success).toBe(false);
+      expect(json.isApiKeyMissing).toBe(true);
+      expect(json.error).toContain("GEMINI_API_KEY is not configured on the server");
+    });
+
+    it("strictly blocks simulated extraction in production even when client requests allowMock=true", async () => {
+      process.env.NODE_ENV = "production";
+      const formData = new FormData();
+      const dummyFile = new File([new Uint8Array([1, 2, 3])], "sample.png", { type: "image/png" });
+      formData.append("file", dummyFile);
+      formData.append("extractionType", "recipe");
+      formData.append("allowMock", "true");
+
+      const req = new NextRequest("http://localhost:3000/api/extract?mock=true", {
+        method: "POST",
+        body: formData,
+      });
+
+      const res = await extractRouteHandler(req);
+      // In production with missing key, must return HTTP 503 and NEVER run mock
+      expect(res.status).toBe(503);
+
+      const json = await res.json();
+      expect(json.success).toBe(false);
+      expect(json.isApiKeyMissing).toBe(true);
+      expect(json.data).toBeUndefined();
+    });
+
+    it("permits simulated extraction strictly in non-production when explicitly requested and flags isMocked: true", async () => {
+      process.env.NODE_ENV = "development";
+      const formData = new FormData();
+      const dummyFile = new File([new Uint8Array([1, 2, 3])], "sample.png", { type: "image/png" });
+      formData.append("file", dummyFile);
+      formData.append("extractionType", "recipe");
+      formData.append("allowMock", "true");
+
+      const req = new NextRequest("http://localhost:3000/api/extract", {
+        method: "POST",
+        body: formData,
+      });
+
+      const res = await extractRouteHandler(req);
+      expect(res.status).toBe(200);
+
+      const json = await res.json();
+      expect(json.success).toBe(true);
+      expect(json.isMocked).toBe(true);
+      expect(json.data).toBeDefined();
+      expect(json.data.dishName).toBeDefined();
+    });
+
+    it("rejects unsupported MIME types with HTTP 400", async () => {
+      const formData = new FormData();
+      const textFile = new File(["not an image"], "document.txt", { type: "text/plain" });
+      formData.append("file", textFile);
+
+      const req = new NextRequest("http://localhost:3000/api/extract", {
+        method: "POST",
+        body: formData,
+      });
+
+      const res = await extractRouteHandler(req);
+      expect(res.status).toBe(400);
+
+      const json = await res.json();
+      expect(json.success).toBe(false);
+      expect(json.error).toContain("Unsupported file type");
     });
   });
 });

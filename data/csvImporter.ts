@@ -39,7 +39,8 @@ export interface CsvValidationResult<T> {
 export function validateCsvContent<T>(
   csvText: string,
   category: ImportCategory,
-  schema: z.ZodType<T>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  schema: z.ZodType<T, z.ZodTypeDef, any>,
   fileName = "uploaded.csv",
   uniqueKeyFn?: (item: T) => string
 ): CsvValidationResult<T> {
