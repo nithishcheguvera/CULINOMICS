@@ -17,9 +17,21 @@ import {
   DishSimulationResult,
   createInitialScenarioForDish,
   simulateDishScenario,
+  calculateIngredientInflation,
+  IngredientInflation,
+  calculateDishIngredientBreakdown,
+  DishIngredientBreakdown,
 } from "@/engine";
 
 export type DashboardTab = "all" | "overview" | "matrix" | "profitability" | "replay" | "explorer3d" | "import" | "simulator";
+
+export type ThreeVisualizationMode =
+  | "profitability-landscape"
+  | "ingredient-inflation"
+  | "recipe-replay"
+  | "sales-volume"
+  | "margin-breakdown"
+  | "inflation-impact";
 
 export type DatasetMode = "demo" | "custom";
 
@@ -38,6 +50,8 @@ export interface ComputedAnalytics {
   recipeReplay: DishRecipeReplay[];
   inflationImpact: InflationImpactDish[];
   salesAnalysis: SalesAnalysis | null;
+  ingredientInflation: IngredientInflation[];
+  timelineDates: string[];
   kpis: AnnualKpiSummary | null;
 }
 
@@ -78,6 +92,10 @@ export function computeAnalyticsForDataset(dataset: StoryDataset): ComputedAnaly
 
   const salesAnalysis = calculateSalesAnalysis(dataset.sales);
 
+  const ingredientInflation = calculateIngredientInflation(dataset.ingredientPrices);
+
+  const timelineDates = Array.from(new Set(dataset.ingredientPrices.map((p) => p.date))).sort();
+
   const annualRevenue = monthlyPerformance.reduce((sum, m) => sum + m.revenue, 0);
   const annualIngredientCost = monthlyPerformance.reduce((sum, m) => sum + m.ingredientCost, 0);
   const annualGrossContribution = annualRevenue - annualIngredientCost;
@@ -91,6 +109,8 @@ export function computeAnalyticsForDataset(dataset: StoryDataset): ComputedAnaly
     recipeReplay,
     inflationImpact,
     salesAnalysis,
+    ingredientInflation,
+    timelineDates,
     kpis: {
       annualRevenue,
       annualIngredientCost,
@@ -121,7 +141,13 @@ export interface AppState {
   recipeReplay: DishRecipeReplay[];
   inflationImpact: InflationImpactDish[];
   salesAnalysis: SalesAnalysis | null;
+  ingredientInflation: IngredientInflation[];
+  timelineDates: string[];
   kpis: AnnualKpiSummary | null;
+
+  // 3D Financial Visualization state (Stage 8)
+  threeMode: ThreeVisualizationMode;
+  selectedTimelineDate: string | null;
 
   // Menu Surgery Simulator state (Stage 7)
   activeScenario: DishSimulationScenario | null;
@@ -136,6 +162,9 @@ export interface AppState {
   setScenarioDish: (dishId: string) => void;
   updateScenario: (scenario: DishSimulationScenario) => void;
   resetScenario: () => void;
+  setThreeMode: (mode: ThreeVisualizationMode) => void;
+  setSelectedTimelineDate: (date: string) => void;
+  getDishIngredientBreakdown: (dishId?: string, date?: string) => DishIngredientBreakdown | null;
 }
 
 /**
@@ -215,12 +244,41 @@ export const useAppStore = create<AppState>((set, get) => ({
   recipeReplay: [],
   inflationImpact: [],
   salesAnalysis: null,
+  ingredientInflation: [],
+  timelineDates: [],
   kpis: null,
+
+  threeMode: "profitability-landscape",
+  selectedTimelineDate: null,
 
   activeScenario: null,
   scenarioResult: null,
 
   setActiveTab: (activeTab) => set({ activeTab }),
+
+  setThreeMode: (threeMode) => set({ threeMode }),
+
+  setSelectedTimelineDate: (selectedTimelineDate) => set({ selectedTimelineDate }),
+
+  getDishIngredientBreakdown: (dishId, date) => {
+    const dataset = get().dataset;
+    if (!dataset) return null;
+    const targetDishId = dishId || get().selectedDishId;
+    const defaultDate = get().selectedTimelineDate || get().timelineDates[get().timelineDates.length - 1];
+    const targetDate = date || defaultDate;
+    if (!targetDishId || !targetDate) return null;
+
+    try {
+      return calculateDishIngredientBreakdown(
+        targetDishId,
+        dataset.recipes,
+        dataset.ingredientPrices,
+        targetDate
+      );
+    } catch {
+      return null;
+    }
+  },
 
   setSelectedDishId: (selectedDishId) => {
     const { dishProfitability, menuEngineering, monthlyPerformance } = get();
@@ -280,10 +338,14 @@ export const useAppStore = create<AppState>((set, get) => ({
         analytics.menuEngineering,
         monthCount
       );
+      const defaultDate = get().selectedTimelineDate && analytics.timelineDates.includes(get().selectedTimelineDate!)
+        ? get().selectedTimelineDate
+        : analytics.timelineDates[analytics.timelineDates.length - 1] || null;
       set({
         dataset: cached,
         datasetMode: "demo",
         selectedDishId: defaultDish,
+        selectedTimelineDate: defaultDate,
         ...simState,
         ...analytics,
         isLoading: false,
@@ -305,11 +367,16 @@ export const useAppStore = create<AppState>((set, get) => ({
         monthCount
       );
 
+      const defaultDate = get().selectedTimelineDate && analytics.timelineDates.includes(get().selectedTimelineDate!)
+        ? get().selectedTimelineDate
+        : analytics.timelineDates[analytics.timelineDates.length - 1] || null;
+
       set({
         dataset,
         demoDatasetBackup: dataset,
         datasetMode: "demo",
         selectedDishId: defaultDish,
+        selectedTimelineDate: defaultDate,
         ...simState,
         isLoading: false,
         error: null,
@@ -337,11 +404,16 @@ export const useAppStore = create<AppState>((set, get) => ({
         monthCount
       );
 
+      const defaultDate = get().selectedTimelineDate && analytics.timelineDates.includes(get().selectedTimelineDate!)
+        ? get().selectedTimelineDate
+        : analytics.timelineDates[analytics.timelineDates.length - 1] || null;
+
       set({
         dataset: candidateDataset,
         customDataset: candidateDataset,
         datasetMode: "custom",
         selectedDishId: firstDish,
+        selectedTimelineDate: defaultDate,
         ...simState,
         error: null,
         ...analytics,
@@ -372,11 +444,16 @@ export const useAppStore = create<AppState>((set, get) => ({
         monthCount
       );
 
+      const defaultDate = get().selectedTimelineDate && analytics.timelineDates.includes(get().selectedTimelineDate!)
+        ? get().selectedTimelineDate
+        : analytics.timelineDates[analytics.timelineDates.length - 1] || null;
+
       set({
         dataset: demoData,
         demoDatasetBackup: demoData,
         datasetMode: "demo",
         selectedDishId: defaultDish,
+        selectedTimelineDate: defaultDate,
         ...simState,
         isLoading: false,
         error: null,

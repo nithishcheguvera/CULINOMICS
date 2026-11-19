@@ -29,6 +29,7 @@ export interface DishProfitability {
 export interface MonthlyPricePoint {
   date: string;
   price: number;
+  indexedPrice: number; // Normalized price growth: (price / startPrice) * 100
 }
 
 export interface IngredientInflation {
@@ -133,4 +134,24 @@ export interface InflationImpactDish {
   marginErosionPercentage: number;
   isInflationHurt: boolean;
   ingredientDrivers: IngredientCostContribution[];
+}
+
+export interface DishIngredientBreakdownItem {
+  ingredientId: string;
+  ingredientName: string;
+  quantity: number;
+  recipeUnit: string;
+  pricingUnit: string;
+  normalizedQuantityInPricingUnit: number;
+  unitPrice: number;
+  ingredientCost: number; // Exact unrounded cost contribution in INR
+  costSharePercentage: number; // (ingredientCost / totalRecipeCost) * 100
+}
+
+export interface DishIngredientBreakdown {
+  dishId: string;
+  dishName: string;
+  date: string;
+  totalRecipeCost: number; // Reconciled against calculateRecipeCostForDate
+  ingredients: DishIngredientBreakdownItem[]; // Sorted descending by ingredientCost
 }

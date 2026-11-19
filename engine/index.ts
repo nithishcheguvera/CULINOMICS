@@ -9,4 +9,5 @@ export * from "./salesAnalysis";
 export * from "./menuEngineering";
 export * from "./inflationImpact";
 export * from "./simulator";
+export * from "./ingredientBreakdown";
 

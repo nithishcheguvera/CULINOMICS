@@ -19,7 +19,7 @@ export function SceneCanvas() {
   };
 
   return (
-    <div className="relative w-full h-[520px] rounded-xl overflow-hidden bg-neutral-950 border border-neutral-800 shadow-md flex flex-col">
+    <div className="relative w-full h-[540px] rounded-xl overflow-hidden bg-neutral-950 border border-neutral-800 shadow-md flex flex-col">
       {/* 3D Canvas Viewport */}
       <div className="flex-1 w-full h-full">
         <Canvas
@@ -92,7 +92,7 @@ export function SceneCanvas() {
         {/* Engine Link Indicator */}
         <div className="hidden sm:flex items-center space-x-2 bg-neutral-900/90 backdrop-blur border border-neutral-800 px-3 py-1.5 rounded-md text-[11px] font-mono text-neutral-300">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>Stage 4 R3F Foundation</span>
+          <span>Stage 8 3D Engine Link</span>
         </div>
       </div>
 

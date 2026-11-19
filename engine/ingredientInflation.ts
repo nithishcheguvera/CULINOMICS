@@ -44,16 +44,21 @@ export function calculateIngredientInflation(
     const sortedDates = Array.from(data.prices.keys()).sort();
     if (sortedDates.length === 0) continue;
 
-    const monthlyPrices: MonthlyPricePoint[] = sortedDates.map((date) => ({
-      date,
-      price: data.prices.get(date)!,
-    }));
-
-    const startPrice = monthlyPrices[0].price;
-    const endPrice = monthlyPrices[monthlyPrices.length - 1].price;
+    const startPrice = data.prices.get(sortedDates[0])!;
+    const endPrice = data.prices.get(sortedDates[sortedDates.length - 1])!;
     const absoluteChange = endPrice - startPrice;
     const percentageChange = startPrice > 0 ? (absoluteChange / startPrice) * 100 : 0;
     const isMajorDriver = percentageChange >= threshold;
+
+    const monthlyPrices: MonthlyPricePoint[] = sortedDates.map((date) => {
+      const price = data.prices.get(date)!;
+      const indexedPrice = startPrice > 0 ? (price / startPrice) * 100 : 100;
+      return {
+        date,
+        price,
+        indexedPrice,
+      };
+    });
 
     results.push({
       ingredientId,
