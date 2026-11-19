@@ -130,6 +130,7 @@ export function calculateMenuEngineering(
       dishName: d.dishName,
       averageMonthlyVolume: d.averageMonthlyVolume,
       averageContributionMargin: d.averageContributionMargin,
+      totalContribution: d.totalContribution,
       isHighPopularity,
       isHighProfitability,
       category,

@@ -276,6 +276,15 @@ describe("Financial Engine - Menu Engineering Matrix", () => {
     expect(getCat("prawn-risotto")).toBe("PUZZLE");
     expect(getCat("classic-tiramisu")).toBe("DOG");
   });
+
+  it("exposes precomputed totalContribution on each menu engineering dish", () => {
+    for (const dish of menuMatrix.dishes) {
+      expect(typeof dish.totalContribution).toBe("number");
+      expect(dish.totalContribution).toBeGreaterThan(0);
+    }
+    const pizza = menuMatrix.dishes.find((d) => d.dishId === "margherita-pizza");
+    expect(pizza?.totalContribution).toBeGreaterThan(100000);
+  });
 });
 
 describe("Financial Engine - Inflation Impact Comparison", () => {

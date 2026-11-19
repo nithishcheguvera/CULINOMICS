@@ -107,7 +107,7 @@ export function ProfitabilityLandscape() {
   );
 
   const maxContribution = Math.max(
-    ...dishes.map((d) => d.averageMonthlyVolume * d.averageContributionMargin),
+    ...dishes.map((d) => d.totalContribution),
     1
   );
 
@@ -139,9 +139,8 @@ export function ProfitabilityLandscape() {
         const xOffset = ((dish.averageMonthlyVolume - popularityThreshold) / maxVolDiff) * 4.2;
         const zOffset = ((dish.averageContributionMargin - profitabilityThreshold) / maxProfDiff) * 4.2;
 
-        // Height proportional to total monthly gross cash generation (Volume * Margin)
-        const totalCash = dish.averageMonthlyVolume * dish.averageContributionMargin;
-        const normalizedHeight = Math.max(0.6, (totalCash / maxContribution) * 3.2);
+        // Height presentation transformation from precomputed engine totalContribution
+        const normalizedHeight = Math.max(0.6, (dish.totalContribution / maxContribution) * 3.2);
 
         const isSelected = dish.dishId === selectedDishId;
 

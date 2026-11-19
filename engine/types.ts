@@ -87,6 +87,7 @@ export interface MenuEngineeringDish {
   dishName: string;
   averageMonthlyVolume: number;
   averageContributionMargin: number;
+  totalContribution: number;
   isHighPopularity: boolean;
   isHighProfitability: boolean;
   category: MenuEngineeringCategory;
