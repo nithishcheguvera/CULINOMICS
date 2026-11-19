@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { StoryDataset, loadStoryDatasetFromBrowser } from "@/data/storyDataset";
+import { AuthoritativeFact } from "@/ai/tools/factFactory";
+import { VisualizationAction } from "@/ai/tools/actionSchema";
 import {
   calculateMonthlyPerformance,
   MonthlyFinancialPerformance,
@@ -145,6 +147,12 @@ export interface AppState {
   activeScenario: DishSimulationScenario | null;
   scenarioResult: DishSimulationResult | null;
 
+  // AI Decision Assistant state (Stage 9)
+  isAssistantOpen: boolean;
+  isAssistantLoading: boolean;
+  assistantError: string | null;
+  assistantMessages: AssistantChatMessage[];
+
   // Actions
   loadDataset: () => Promise<void>;
   applyCustomDataset: (candidateDataset: StoryDataset) => void;
@@ -157,6 +165,23 @@ export interface AppState {
   setThreeMode: (mode: ThreeVisualizationMode) => void;
   setSelectedTimelineDate: (date: string) => void;
   getDishIngredientBreakdown: (dishId?: string, date?: string) => DishIngredientBreakdown | null;
+
+  // AI Assistant actions
+  setIsAssistantOpen: (open: boolean) => void;
+  toggleAssistant: () => void;
+  sendAssistantMessage: (message: string) => Promise<void>;
+  clearAssistantHistory: () => void;
+}
+
+export interface AssistantChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  authoritativeFacts?: AuthoritativeFact[];
+  visualizationAction?: VisualizationAction | null;
+  warnings?: string[];
+  mode?: "gemini" | "deterministic-fallback";
+  timestamp: number;
 }
 
 /**
@@ -225,6 +250,92 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   activeScenario: null,
   scenarioResult: null,
+
+  isAssistantOpen: false,
+  isAssistantLoading: false,
+  assistantError: null,
+  assistantMessages: [],
+
+  setIsAssistantOpen: (isAssistantOpen) => set({ isAssistantOpen }),
+  toggleAssistant: () => set((state) => ({ isAssistantOpen: !state.isAssistantOpen })),
+  clearAssistantHistory: () => set({ assistantMessages: [], assistantError: null }),
+
+  sendAssistantMessage: async (userQuery: string) => {
+    const trimmed = userQuery.trim();
+    if (!trimmed) return;
+
+    const userMessage: AssistantChatMessage = {
+      id: `user-${Date.now()}`,
+      role: "user",
+      content: trimmed,
+      timestamp: Date.now(),
+    };
+
+    set((state) => ({
+      assistantMessages: [...state.assistantMessages, userMessage],
+      isAssistantLoading: true,
+      assistantError: null,
+    }));
+
+    try {
+      const { dataset, datasetMode, selectedDishId, assistantMessages } = get();
+
+      // Recent history (up to 6 turns)
+      const recentHistory = assistantMessages.slice(-6).map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
+
+      const payload: Record<string, unknown> = {
+        message: trimmed,
+        datasetMode,
+        history: recentHistory,
+        selectedDishId,
+      };
+
+      if (datasetMode === "custom" && dataset) {
+        payload.customDataset = dataset;
+      }
+
+      const res = await fetch("/api/assistant", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => null);
+        throw new Error(errJson?.error || `Assistant request failed with status ${res.status}`);
+      }
+
+      const json = await res.json();
+      if (!json.success) {
+        throw new Error(json.error || "Assistant execution failed");
+      }
+
+      const assistantMessage: AssistantChatMessage = {
+        id: `assistant-${Date.now()}`,
+        role: "assistant",
+        content: json.assistantMessage,
+        authoritativeFacts: json.authoritativeFacts,
+        visualizationAction: json.visualizationAction,
+        warnings: json.warnings,
+        mode: json.mode,
+        timestamp: Date.now(),
+      };
+
+      set((state) => ({
+        assistantMessages: [...state.assistantMessages, assistantMessage],
+        isAssistantLoading: false,
+      }));
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "Failed to communicate with AI Assistant";
+      set({
+        isAssistantLoading: false,
+        assistantError: errorMsg,
+      });
+    }
+  },
 
   setActiveTab: (activeTab) => set({ activeTab }),
 

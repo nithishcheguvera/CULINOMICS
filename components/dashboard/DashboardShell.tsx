@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useAppStore, DashboardTab } from "@/store/useAppStore";
+import { AssistantTriggerButton, AssistantDrawer } from "@/components/assistant";
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -54,6 +55,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
               <div className="hidden sm:flex items-center px-2.5 py-1 rounded-md bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-xs font-medium text-neutral-600 dark:text-neutral-300">
                 <span>Dataset: <strong className={datasetMode === "custom" ? "text-purple-600 dark:text-purple-400 font-bold" : ""}>{datasetMode === "custom" ? "Custom Imported" : "Canonical 2025"}</strong></span>
               </div>
+              <AssistantTriggerButton />
             </div>
           </div>
 
@@ -119,6 +121,9 @@ export function DashboardShell({ children }: DashboardShellProps) {
           <span>Powered by Deterministic TypeScript Engine • Verified Vitest Math</span>
         </div>
       </footer>
+
+      {/* AI Decision Assistant Drawer */}
+      <AssistantDrawer />
     </div>
   );
 }
