@@ -16,7 +16,7 @@ const MODES: ModeItem[] = [
     id: "profitability-landscape",
     label: "Profitability Landscape",
     icon: "📊",
-    description: "Kasavana & Smith quadrants scatter: Popularity vs Contribution vs Cash",
+    description: "Kasavana & Smith quadrants: Popularity vs Contribution vs Cash",
     hasTimeline: false,
   },
   {
@@ -68,7 +68,7 @@ export function ThreeModeSelector() {
   const currentMode = MODES.find((m) => m.id === threeMode) || MODES[0];
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 select-none">
       {/* 1. Mode Switcher Pills */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
         {MODES.map((m) => {
@@ -80,8 +80,8 @@ export function ThreeModeSelector() {
               onClick={() => setThreeMode(m.id)}
               className={`px-2.5 py-1 text-xs font-medium rounded-lg border transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
                 isActive
-                  ? "bg-primary text-primary-foreground border-primary shadow-xs font-semibold"
-                  : "bg-neutral-900/80 hover:bg-neutral-800 text-neutral-300 border-neutral-700/80 hover:text-white"
+                  ? "bg-emerald-500 text-neutral-950 border-emerald-400 font-bold shadow-sm"
+                  : "bg-forest-elevated hover:bg-forest-border text-neutral-300 border-forest-border hover:text-white"
               }`}
               title={m.description}
             >
@@ -94,10 +94,10 @@ export function ThreeModeSelector() {
 
       {/* 2. Optional Timeline Date Scrubber (Only for time-based modes) */}
       {currentMode.hasTimeline && timelineDates.length > 0 && (
-        <div className="flex items-center justify-between gap-3 px-3 py-1.5 rounded-lg bg-neutral-900/90 border border-neutral-800 text-xs">
+        <div className="flex items-center justify-between gap-3 px-3 py-1.5 rounded-lg bg-forest-elevated/80 border border-forest-border text-xs">
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
-              Timeline:
+              Mode Runway Date:
             </span>
             <span className="font-mono font-bold text-white">
               {selectedTimelineDate || timelineDates[timelineDates.length - 1]}
@@ -116,8 +116,8 @@ export function ThreeModeSelector() {
                   onClick={() => setSelectedTimelineDate(date)}
                   className={`px-1.5 py-0.5 rounded text-[10px] font-mono transition-colors cursor-pointer ${
                     isSelected
-                      ? "bg-white text-neutral-900 font-bold"
-                      : "bg-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-700"
+                      ? "bg-emerald-500 text-neutral-950 font-bold"
+                      : "bg-forest-surface text-neutral-400 hover:text-white hover:bg-forest-border"
                   }`}
                   title={date}
                 >

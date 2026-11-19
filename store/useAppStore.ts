@@ -164,6 +164,7 @@ export interface AppState {
   resetScenario: () => void;
   setThreeMode: (mode: ThreeVisualizationMode) => void;
   setSelectedTimelineDate: (date: string) => void;
+  setSelectedMonthIndex: (index: number) => void;
   getDishIngredientBreakdown: (dishId?: string, date?: string) => DishIngredientBreakdown | null;
 
   // AI Assistant actions
@@ -342,6 +343,13 @@ export const useAppStore = create<AppState>((set, get) => ({
   setThreeMode: (threeMode) => set({ threeMode }),
 
   setSelectedTimelineDate: (selectedTimelineDate) => set({ selectedTimelineDate }),
+
+  setSelectedMonthIndex: (index: number) => {
+    const dates = get().timelineDates;
+    if (dates && dates[index]) {
+      set({ selectedTimelineDate: dates[index] });
+    }
+  },
 
   getDishIngredientBreakdown: (dishId, date) => {
     const dataset = get().dataset;

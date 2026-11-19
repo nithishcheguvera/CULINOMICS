@@ -1,11 +1,9 @@
 "use client";
 
 import React, { useEffect } from "react";
-import dynamic from "next/dynamic";
 import { useAppStore } from "@/store/useAppStore";
 import {
-  DashboardShell,
-  KpiCards,
+  CockpitShell,
   FinancialOverviewSection,
   MenuMatrixSection,
   DishProfitabilitySection,
@@ -13,16 +11,6 @@ import {
 } from "@/components/dashboard";
 import { SmartImportSection } from "@/components/import";
 import { MenuSurgerySection } from "@/components/simulator";
-import { ScenePlaceholder } from "@/three/ScenePlaceholder";
-
-// Client-side only dynamic import with SSR disabled per architectural invariants
-const SceneExplorer = dynamic(
-  () => import("@/three/SceneExplorer").then((mod) => mod.SceneExplorer),
-  {
-    ssr: false,
-    loading: () => <ScenePlaceholder />,
-  }
-);
 
 export default function HomePage() {
   const { loadDataset, activeTab, dataset } = useAppStore();
@@ -32,12 +20,9 @@ export default function HomePage() {
   }, [loadDataset]);
 
   return (
-    <DashboardShell>
+    <CockpitShell>
       {dataset && (
-        <div className="space-y-10">
-          {/* Executive KPI Summary Cards */}
-          {activeTab !== "explorer3d" && activeTab !== "import" && <KpiCards />}
-
+        <div className="space-y-8">
           {/* Smart Import & Multimodal Extraction */}
           {activeTab === "import" && (
             <div id="smart-import" className="scroll-mt-24">
@@ -76,15 +61,8 @@ export default function HomePage() {
               <MenuSurgerySection />
             </div>
           )}
-
-          {/* 3D Explorer - Mounted conditionally only when the user selects the 3D tab */}
-          {activeTab === "explorer3d" && (
-            <div id="3d-explorer" className="scroll-mt-24">
-              <SceneExplorer />
-            </div>
-          )}
         </div>
       )}
-    </DashboardShell>
+    </CockpitShell>
   );
 }
