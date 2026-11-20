@@ -27,11 +27,15 @@ const BADGE_STYLES: Record<MenuEngineeringCategory, { label: string; icon: strin
   },
 };
 
-export function DishInspectorCard() {
+export interface DishInspectorCardProps {
+  initialMode?: "inspect" | "breakdown" | "surgery";
+}
+
+export function DishInspectorCard({ initialMode = "inspect" }: DishInspectorCardProps = {}) {
   const store = useAppStore();
   const state = typeof window === "undefined" ? useAppStore.getState() : store;
 
-  const [cardMode, setCardMode] = useState<"inspect" | "surgery">("inspect");
+  const [cardMode, setCardMode] = useState<"inspect" | "breakdown" | "surgery">(initialMode);
 
   const {
     dishProfitability,
@@ -42,6 +46,8 @@ export function DishInspectorCard() {
     selectedTimelineDate,
     timelineDates,
     setSelectedDishId,
+    setThreeMode,
+    getDishIngredientBreakdown,
     activeScenario,
     scenarioResult,
     updateScenario,
@@ -114,25 +120,38 @@ export function DishInspectorCard() {
       {/* Header, Mode Toggle & Dish Dropdown */}
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-2">
-          {/* Segmented Mode Selector: [Inspector] | [Menu Surgery 🔬] */}
+          {/* Segmented Mode Selector: [Inspector] | [Breakdown 📊] | [Menu Surgery 🔬] */}
           <div className="flex items-center bg-forest-elevated/90 border border-forest-border p-0.5 rounded-lg text-xs font-medium">
             <button
               id="btn-stage-inspect-toggle"
               type="button"
               onClick={() => setCardMode("inspect")}
-              className={`px-2.5 py-1 rounded-md transition-all select-none cursor-pointer ${
+              className={`px-2 py-1 rounded-md transition-all select-none cursor-pointer ${
                 cardMode === "inspect"
                   ? "bg-emerald-500 text-neutral-950 font-bold shadow-sm"
                   : "text-neutral-400 hover:text-white"
               }`}
             >
-              👁️ Inspector
+              👁️ Inspect
+            </button>
+            <button
+              id="btn-stage-breakdown-toggle"
+              type="button"
+              onClick={() => setCardMode("breakdown")}
+              className={`px-2 py-1 rounded-md transition-all select-none cursor-pointer flex items-center space-x-1 ${
+                cardMode === "breakdown"
+                  ? "bg-emerald-500 text-neutral-950 font-bold shadow-sm"
+                  : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              <span>📊</span>
+              <span>Breakdown</span>
             </button>
             <button
               id="btn-stage-surgery-toggle"
               type="button"
               onClick={() => setCardMode("surgery")}
-              className={`px-2.5 py-1 rounded-md transition-all select-none cursor-pointer flex items-center space-x-1 ${
+              className={`px-2 py-1 rounded-md transition-all select-none cursor-pointer flex items-center space-x-1 ${
                 cardMode === "surgery"
                   ? "bg-emerald-500 text-neutral-950 font-bold shadow-sm"
                   : "text-neutral-400 hover:text-white"
@@ -249,19 +268,111 @@ export function DishInspectorCard() {
             )}
           </div>
 
-          {/* Action CTA: Switch right card to surgery mode */}
-          <button
-            type="button"
-            onClick={() => setCardMode("surgery")}
-            className="w-full py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs sm:text-sm transition-all shadow-md shadow-emerald-950 flex items-center justify-center gap-2 cursor-pointer select-none"
-          >
-            <span>🔬</span>
-            <span>Simulate Price Surgery on {currentDish.dishName}</span>
-          </button>
+          {/* Action CTAs: Cost Breakdown & Price Surgery */}
+          <div className="space-y-2">
+            <button
+              id="btn-stage-breakdown-action"
+              type="button"
+              onClick={() => setCardMode("breakdown")}
+              className="w-full py-2 px-3 rounded-xl bg-forest-elevated hover:bg-forest-elevated/80 border border-forest-border hover:border-emerald-500/50 text-white font-semibold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer select-none"
+            >
+              <span>📊</span>
+              <span>View Cost Breakdown & Revenue Allocation</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setCardMode("surgery")}
+              className="w-full py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs sm:text-sm transition-all shadow-md shadow-emerald-950 flex items-center justify-center gap-2 cursor-pointer select-none"
+            >
+              <span>🔬</span>
+              <span>Simulate Price Surgery on {currentDish.dishName}</span>
+            </button>
+          </div>
         </div>
       )}
 
-      {/* MODE B: Live Menu Surgery Lab View */}
+      {/* MODE B: Financial Breakdown & Cost Anatomy View */}
+      {cardMode === "breakdown" && (
+        (() => {
+          const breakdown = getDishIngredientBreakdown(currentDish.dishId, activeDate ?? undefined);
+          const foodCostPct = currentDish.unitSellingPrice > 0 ? (currentCost / currentDish.unitSellingPrice) * 100 : 0;
+          const contribPct = Math.max(0, 100 - foodCostPct);
+
+          return (
+            <div data-testid="inspector-breakdown-view" className="space-y-3.5">
+              {/* Stacked Financial Allocation Bar */}
+              <div className="space-y-1.5 p-3 rounded-xl bg-forest-elevated/70 border border-forest-border">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-neutral-300">Revenue Allocation</span>
+                  <span className="font-mono text-[11px] text-neutral-400">
+                    Price: <strong className="text-white">{formatINR(currentDish.unitSellingPrice)}</strong>
+                  </span>
+                </div>
+
+                {/* Progress bar */}
+                <div className="w-full h-3 rounded-full bg-neutral-900 overflow-hidden flex border border-forest-border/40">
+                  <div
+                    style={{ width: `${foodCostPct}%` }}
+                    className="bg-amber-500 transition-all"
+                    title={`Food Cost: ${foodCostPct.toFixed(1)}%`}
+                  />
+                  <div
+                    style={{ width: `${contribPct}%` }}
+                    className="bg-emerald-500 transition-all"
+                    title={`Gross Contribution: ${contribPct.toFixed(1)}%`}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between text-[10px] font-mono pt-0.5">
+                  <span className="text-amber-400">Food Cost: {formatINR(currentCost, { showDecimals: true })} ({foodCostPct.toFixed(1)}%)</span>
+                  <span className="text-emerald-400">Contribution: {formatINR(currentContribution, { showDecimals: true })} ({contribPct.toFixed(1)}%)</span>
+                </div>
+              </div>
+
+              {/* Ingredient Breakdown List */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-[11px] font-semibold text-neutral-400">
+                  <span>Recipe Ingredients ({breakdown?.ingredients.length ?? 0}):</span>
+                  <span className="text-[10px] text-emerald-400 font-mono">Reconciled 100%</span>
+                </div>
+
+                <div className="max-h-[175px] overflow-y-auto space-y-1.5 pr-1 scrollbar-thin scrollbar-thumb-forest-border">
+                  {breakdown?.ingredients.map((ing) => (
+                    <div
+                      key={ing.ingredientId}
+                      className="p-2 rounded-lg bg-forest-elevated/50 border border-forest-border/60 flex items-center justify-between text-xs"
+                    >
+                      <div>
+                        <div className="font-semibold text-white">{ing.ingredientName}</div>
+                        <div className="text-[10px] text-neutral-400 font-mono">
+                          {ing.quantity} {ing.recipeUnit} • {formatINR(ing.unitPrice, { showDecimals: true })}/{ing.pricingUnit}
+                        </div>
+                      </div>
+                      <div className="text-right font-mono">
+                        <div className="font-bold text-neutral-100">{formatINR(ing.ingredientCost, { showDecimals: true })}</div>
+                        <div className="text-[10px] text-amber-400">{ing.costSharePercentage.toFixed(1)}%</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Button: Focus 3D Financial Waterfall */}
+              <button
+                id="btn-focus-3d-waterfall"
+                type="button"
+                onClick={() => setThreeMode("margin-breakdown")}
+                className="w-full py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold text-xs sm:text-sm transition-all shadow-md shadow-emerald-950 flex items-center justify-center gap-2 cursor-pointer select-none active:scale-98"
+              >
+                <span>🥩</span>
+                <span>Focus 3D Financial Waterfall</span>
+              </button>
+            </div>
+          );
+        })()
+      )}
+
+      {/* MODE C: Live Menu Surgery Lab View */}
       {cardMode === "surgery" && hasSurgery && sim && delta && base && (
         <div className="space-y-3.5">
           {/* Sliders: Selling Price, Ingredient Cost, Volume */}

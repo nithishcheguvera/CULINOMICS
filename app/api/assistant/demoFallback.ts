@@ -146,12 +146,20 @@ export function generateDeterministicFallbackResponse(
       `\nRecommendation: Inspect the recipe replay timeline to assess monthly margin compression caused by ingredient inflation.`,
     ].join("\n");
 
-    const action: VisualizationAction = {
-      actionType: "SET_ACTIVE_TAB",
-      tab: "replay",
-      dishId: targetDish.id,
-      label: `Inspect ${targetDish.name} in Recipe Replay`,
-    };
+    const action: VisualizationAction =
+      q.includes("breakdown") || q.includes("waterfall") || q.includes("anatomy") || q.includes("ingredient")
+        ? {
+            actionType: "SET_THREE_MODE",
+            threeMode: "margin-breakdown",
+            dishId: targetDish.id,
+            label: `Inspect ${targetDish.name} in 3D Financial Waterfall`,
+          }
+        : {
+            actionType: "SET_ACTIVE_TAB",
+            tab: "replay",
+            dishId: targetDish.id,
+            label: `Inspect ${targetDish.name} in Recipe Replay`,
+          };
 
     return {
       assistantMessage: message,

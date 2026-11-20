@@ -42,9 +42,9 @@ const MODES: ModeItem[] = [
   },
   {
     id: "margin-breakdown",
-    label: "Cost Anatomy Tower",
+    label: "Financial Breakdown Waterfall",
     icon: "🥩",
-    description: "Deconstructed ingredient cost shares & plate anatomy for selected dish",
+    description: "3D waterfall: Selling price, deconstructed ingredients & gross contribution",
     hasTimeline: true,
   },
   {

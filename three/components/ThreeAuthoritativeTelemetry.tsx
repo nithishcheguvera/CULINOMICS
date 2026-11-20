@@ -5,6 +5,9 @@ import { useAppStore, formatINR } from "@/store/useAppStore";
 import { MenuEngineeringCategory } from "@/engine";
 
 export function ThreeAuthoritativeTelemetry() {
+  const store = useAppStore();
+  const state = typeof window === "undefined" ? useAppStore.getState() : store;
+
   const {
     threeMode,
     selectedDishId,
@@ -18,7 +21,7 @@ export function ThreeAuthoritativeTelemetry() {
     inflationImpact,
     salesAnalysis,
     getDishIngredientBreakdown,
-  } = useAppStore();
+  } = state;
 
   const selectedDish = menuEngineering?.dishes.find((d) => d.dishId === selectedDishId);
   const selectedProfit = dishProfitability.find((p) => p.dishId === selectedDishId);
@@ -278,7 +281,7 @@ export function ThreeAuthoritativeTelemetry() {
         </div>
       )}
 
-      {/* Mode 5 Telemetry: Ingredient Margin Breakdown (Cost Anatomy) */}
+      {/* Mode 5 Telemetry: Ingredient Margin Breakdown (Financial Waterfall & Cost Anatomy) */}
       {threeMode === "margin-breakdown" && (
         (() => {
           const breakdown = getDishIngredientBreakdown(selectedDishId, selectedTimelineDate ?? undefined);
@@ -290,26 +293,65 @@ export function ThreeAuthoritativeTelemetry() {
             );
           }
 
+          const activePoint = selectedReplay?.points.find((p) => p.date === breakdown.date);
+          const sellingPrice = activePoint?.sellingPrice ?? selectedProfit?.unitSellingPrice ?? 0;
+          const grossContribution = Math.max(0, sellingPrice - breakdown.totalRecipeCost);
+          const marginPercentage = sellingPrice > 0 ? (grossContribution / sellingPrice) * 100 : 0;
+          const foodCostPercentage = sellingPrice > 0 ? (breakdown.totalRecipeCost / sellingPrice) * 100 : 0;
+
           return (
             <div className="space-y-3 text-xs">
+              {/* Financial Waterfall Reconciliation Row */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <div className="p-2.5 rounded-lg bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700">
+                  <span className="text-[11px] text-neutral-500">Selling Price</span>
+                  <p className="text-sm font-bold font-mono text-neutral-900 dark:text-neutral-100 mt-0.5">
+                    {formatINR(sellingPrice)}
+                  </p>
+                  <span className="text-[10px] text-neutral-400">100% Revenue</span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700">
+                  <span className="text-[11px] text-neutral-500">Total Food Cost</span>
+                  <p className="text-sm font-bold font-mono text-amber-600 dark:text-amber-400 mt-0.5">
+                    {formatINR(breakdown.totalRecipeCost, { showDecimals: true })}
+                  </p>
+                  <span className="text-[10px] text-neutral-400">{foodCostPercentage.toFixed(1)}% of price</span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700">
+                  <span className="text-[11px] text-neutral-500">Gross Contribution</span>
+                  <p className="text-sm font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-0.5">
+                    {formatINR(grossContribution, { showDecimals: true })}
+                  </p>
+                  <span className="text-[10px] text-neutral-400">Cash yield per plate</span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700">
+                  <span className="text-[11px] text-neutral-500">Contribution Margin</span>
+                  <p className="text-sm font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-0.5">
+                    {marginPercentage.toFixed(1)}%
+                  </p>
+                  <span className="text-[10px] text-neutral-400">Food Margin</span>
+                </div>
+              </div>
+
+              {/* Breakdown Title & Date Header */}
               <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700">
                 <div>
                   <div className="flex items-center space-x-2">
                     <span className="font-bold text-sm text-neutral-900 dark:text-neutral-100">
-                      {breakdown.dishName} — Plate Cost Breakdown
+                      {breakdown.dishName} — 3D Waterfall & Plate Anatomy
                     </span>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
                       ✓ Reconciled (|Δ| ≤ 10⁻⁹)
                     </span>
                   </div>
                   <p className="text-[11px] text-neutral-500 mt-0.5">
-                    As of date: <strong>{breakdown.date}</strong>
+                    As of date: <strong>{breakdown.date}</strong> • Showing {breakdown.ingredients.length} recipe ingredients
                   </p>
                 </div>
                 <div className="text-right font-mono">
-                  <span className="text-[10px] text-neutral-400">Total Recipe Cost: </span>
-                  <strong className="text-sm text-neutral-900 dark:text-neutral-100">
-                    {formatINR(breakdown.totalRecipeCost, { showDecimals: true })}
+                  <span className="text-[10px] text-neutral-400">Reconciliation: </span>
+                  <strong className="text-xs text-neutral-900 dark:text-neutral-100">
+                    {formatINR(sellingPrice)} = {formatINR(breakdown.totalRecipeCost, { showDecimals: true })} + {formatINR(grossContribution, { showDecimals: true })}
                   </strong>
                 </div>
               </div>
