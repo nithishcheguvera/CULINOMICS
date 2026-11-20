@@ -19,11 +19,12 @@ export function SceneCanvas() {
   };
 
   return (
-    <div className="relative w-full h-[clamp(360px,calc(100vh-320px),520px)] min-h-[360px] rounded-xl overflow-hidden bg-[#06100C] border border-forest-border shadow-md flex flex-col">
+    <div className="relative w-full h-[clamp(340px,46vh,520px)] min-h-[340px] rounded-2xl overflow-hidden bg-[#06100C] border border-forest-border shadow-md flex flex-col">
       {/* 3D Canvas Viewport */}
       <div className="flex-1 w-full h-full">
         <Canvas
           shadows
+          dpr={[1, 2]}
           camera={{ position: [5, 4.5, 6.5], fov: 45 }}
           gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
           className="w-full h-full"
@@ -35,12 +36,12 @@ export function SceneCanvas() {
       </div>
 
       {/* Top HUD Overlay: Active Selection & Engine Telemetry */}
-      <div className="absolute top-3 left-3 right-3 flex items-start justify-between pointer-events-none select-none">
+      <div className="absolute top-3 left-3 right-3 flex flex-wrap items-center justify-between gap-2 pointer-events-none select-none z-10">
         {selectedDish ? (
           <div className="bg-forest-surface/90 backdrop-blur border border-forest-border px-3.5 py-2 rounded-xl shadow-lg pointer-events-auto flex items-center space-x-3">
             <div>
               <div className="flex items-center space-x-2">
-                <span className="text-xs font-semibold text-white tracking-wide">
+                <span className="text-xs font-semibold text-white tracking-wide truncate max-w-[140px] sm:max-w-none">
                   {selectedDish.dishName}
                 </span>
                 <span
@@ -61,7 +62,7 @@ export function SceneCanvas() {
                 aria-label="Select dish in 3D Explorer"
                 value={selectedDishId}
                 onChange={(e) => setSelectedDishId(e.target.value)}
-                className="text-xs px-2 py-1 rounded-lg bg-forest-elevated text-neutral-200 border border-forest-border focus:outline-none cursor-pointer"
+                className="text-xs px-2 py-1 rounded-lg bg-forest-elevated text-neutral-200 border border-forest-border focus:border-emerald-500 focus:outline-none cursor-pointer"
               >
                 {menuEngineering?.dishes.map((d) => (
                   <option key={d.dishId} value={d.dishId} className="bg-neutral-900 text-white">
@@ -92,15 +93,15 @@ export function SceneCanvas() {
       </div>
 
       {/* Bottom HUD Overlay: Controls Guide */}
-      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[11px] text-neutral-400 bg-forest-surface/80 backdrop-blur border border-forest-border px-3 py-1.5 rounded-lg pointer-events-none select-none">
-        <div className="flex items-center space-x-3">
+      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[11px] text-neutral-400 bg-forest-surface/80 backdrop-blur border border-forest-border px-3 py-1.5 rounded-lg pointer-events-none select-none z-10">
+        <div className="flex items-center space-x-2 sm:space-x-3 text-[10px] sm:text-[11px]">
           <span><strong>Left-Click:</strong> Orbit</span>
           <span className="hidden sm:inline">•</span>
           <span className="hidden sm:inline"><strong>Right-Click:</strong> Pan</span>
           <span>•</span>
           <span><strong>Scroll:</strong> Zoom</span>
           <span>•</span>
-          <span><strong>Click Object:</strong> Select Dish</span>
+          <span><strong>Click Object:</strong> Select</span>
         </div>
         <span className="hidden md:inline font-mono text-[10px] text-neutral-500">
           R3F OrbitControls

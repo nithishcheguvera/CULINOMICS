@@ -29,8 +29,8 @@ export function DataBillboard({
           color={color}
           anchorX="center"
           anchorY="middle"
-          outlineWidth={0.02}
-          outlineColor="#000000"
+          outlineWidth={0.025}
+          outlineColor="#06100c"
         >
           {title}
         </Text>
@@ -43,8 +43,8 @@ export function DataBillboard({
             color="#d4d4d8"
             anchorX="center"
             anchorY="middle"
-            outlineWidth={0.015}
-            outlineColor="#000000"
+            outlineWidth={0.02}
+            outlineColor="#06100c"
           >
             {subtitle}
           </Text>
@@ -58,8 +58,8 @@ export function DataBillboard({
             color="#fbbf24"
             anchorX="center"
             anchorY="middle"
-            outlineWidth={0.015}
-            outlineColor="#000000"
+            outlineWidth={0.02}
+            outlineColor="#06100c"
           >
             {badge}
           </Text>

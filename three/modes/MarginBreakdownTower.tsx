@@ -119,14 +119,14 @@ export function MarginBreakdownTower() {
         </mesh>
 
         {/* Selling Price Pillar */}
-        <mesh position={[0, 0.1 + priceHeight / 2, 0]} castShadow receiveShadow>
-          <cylinderGeometry args={[0.65, 0.65, priceHeight, 32]} />
+        <mesh position={[0, 0.1 + priceHeight / 2, 0]} scale={[0.65, priceHeight, 0.65]} castShadow receiveShadow>
+          <cylinderGeometry args={[1, 1, 1, 32]} />
           <meshStandardMaterial
             color="#059669"
-            roughness={0.25}
-            metalness={0.3}
+            roughness={0.2}
+            metalness={0.35}
             emissive="#10b981"
-            emissiveIntensity={0.2}
+            emissiveIntensity={0.25}
           />
         </mesh>
 
@@ -165,6 +165,7 @@ export function MarginBreakdownTower() {
             <group key={ing.ingredientId} position={[0, 0, zOffset]}>
               <mesh
                 position={[0, currentCenterY, 0]}
+                scale={[0.82, sliceHeight, 0.82]}
                 castShadow
                 receiveShadow
                 onClick={(e) => {
@@ -181,13 +182,13 @@ export function MarginBreakdownTower() {
                   setActiveIngredientId(null);
                 }}
               >
-                <cylinderGeometry args={[0.8, 0.85, sliceHeight, 32]} />
+                <cylinderGeometry args={[1, 1, 1, 32]} />
                 <meshStandardMaterial
                   color={color}
-                  roughness={0.25}
-                  metalness={0.2}
+                  roughness={0.22}
+                  metalness={0.25}
                   emissive={color}
-                  emissiveIntensity={isHovered ? 0.5 : 0.1}
+                  emissiveIntensity={isHovered ? 0.55 : 0.12}
                 />
               </mesh>
 
@@ -233,14 +234,14 @@ export function MarginBreakdownTower() {
         </mesh>
 
         {/* Contribution Pillar */}
-        <mesh position={[0, 0.1 + contribHeight / 2, 0]} castShadow receiveShadow>
-          <cylinderGeometry args={[0.65, 0.65, contribHeight, 32]} />
+        <mesh position={[0, 0.1 + contribHeight / 2, 0]} scale={[0.65, contribHeight, 0.65]} castShadow receiveShadow>
+          <cylinderGeometry args={[1, 1, 1, 32]} />
           <meshStandardMaterial
             color="#d97706"
-            roughness={0.2}
-            metalness={0.3}
+            roughness={0.18}
+            metalness={0.35}
             emissive="#f59e0b"
-            emissiveIntensity={0.25}
+            emissiveIntensity={0.3}
           />
         </mesh>
 

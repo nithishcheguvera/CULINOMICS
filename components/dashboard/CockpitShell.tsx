@@ -41,7 +41,7 @@ export function CockpitShell({ children }: CockpitShellProps) {
     <div className="min-h-screen bg-forest-black text-neutral-100 flex flex-col font-sans selection:bg-emerald-500/30">
       {/* Top Cockpit Header Bar */}
       <header className="sticky top-0 z-30 bg-forest-surface/90 backdrop-blur-md border-b border-forest-border select-none">
-        <div className="max-w-[1336px] mx-auto px-4 sm:px-6">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Restaurant Brand Identity */}
             <div className="flex items-center space-x-3">
@@ -100,7 +100,7 @@ export function CockpitShell({ children }: CockpitShellProps) {
       </header>
 
       {/* Main Cockpit Body Container */}
-      <main className="flex-1 max-w-[1336px] w-full mx-auto px-4 sm:px-6 py-5 space-y-5">
+      <main className="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-5">
         {/* Loading State */}
         {isLoading && (
           <div className="py-24 text-center">
@@ -141,7 +141,7 @@ export function CockpitShell({ children }: CockpitShellProps) {
                   </div>
 
                   {/* 3D Scene Explorer Component */}
-                  <div className="flex-1 w-full min-h-[380px] sm:min-h-[440px] max-h-[580px] rounded-xl overflow-hidden relative">
+                  <div className="flex-1 w-full rounded-xl relative">
                     <SceneExplorer />
                   </div>
                 </div>
@@ -183,7 +183,7 @@ export function CockpitShell({ children }: CockpitShellProps) {
 
       {/* Footer */}
       <footer className="border-t border-forest-border/60 py-4 mt-8 select-none">
-        <div className="max-w-[1336px] mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-500 gap-2">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-500 gap-2">
           <p>© 2025 Osteria Bella • Culinomics Profit Intelligence Cockpit</p>
           <p className="font-mono text-[11px]">Engine Verified • Pure TypeScript Math • Zero Black-Box AI</p>
         </div>

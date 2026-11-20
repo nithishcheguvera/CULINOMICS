@@ -27,7 +27,9 @@ function DishColumn({ dish, position, height, isSelected, onSelect }: DishColumn
   const baseColor = CATEGORY_COLORS[dish.category] || "#9ca3af";
 
   useFrame((_, delta) => {
-    if (isSelected && meshRef.current) {
+    const prefersReducedMotion =
+      typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (isSelected && meshRef.current && !prefersReducedMotion) {
       meshRef.current.rotation.y += delta * 0.5;
     }
   });
@@ -40,6 +42,7 @@ function DishColumn({ dish, position, height, isSelected, onSelect }: DishColumn
         castShadow
         receiveShadow
         position={[0, height / 2, 0]}
+        scale={[0.72, height, 0.72]}
         onClick={(e) => {
           e.stopPropagation();
           onSelect(dish.dishId);
@@ -51,7 +54,7 @@ function DishColumn({ dish, position, height, isSelected, onSelect }: DishColumn
           document.body.style.cursor = "auto";
         }}
       >
-        <boxGeometry args={[0.72, height, 0.72]} />
+        <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial
           color={isSelected ? baseColor : "#12241C"}
           roughness={0.2}
@@ -189,8 +192,8 @@ export function ProfitabilityLandscape() {
       {hasActiveSim && (
         <group position={[simXOffset, 0, simZOffset]}>
           {/* Holographic Glowing Ghost Column Mesh */}
-          <mesh position={[0, simNormalizedHeight / 2, 0]}>
-            <boxGeometry args={[0.76, simNormalizedHeight, 0.76]} />
+          <mesh position={[0, simNormalizedHeight / 2, 0]} scale={[0.76, simNormalizedHeight, 0.76]}>
+            <boxGeometry args={[1, 1, 1]} />
             <meshStandardMaterial
               color={projColor}
               transparent
@@ -203,8 +206,8 @@ export function ProfitabilityLandscape() {
           </mesh>
 
           {/* Wireframe Outline */}
-          <mesh position={[0, simNormalizedHeight / 2, 0]}>
-            <boxGeometry args={[0.78, simNormalizedHeight + 0.02, 0.78]} />
+          <mesh position={[0, simNormalizedHeight / 2, 0]} scale={[0.78, simNormalizedHeight + 0.02, 0.78]}>
+            <boxGeometry args={[1, 1, 1]} />
             <meshBasicMaterial color="#ffffff" wireframe transparent opacity={0.4} />
           </mesh>
 

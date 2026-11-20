@@ -27,8 +27,8 @@ export function IngredientInflationExplorer() {
         const isHovered = hoveredIngredientId === ing.ingredientId;
         const isMajor = ing.isMajorDriver;
 
-        // Base accent color
-        const ingColor = isMajor ? "#f43f5e" : ing.percentageChange > 20 ? "#f59e0b" : "#3b82f6";
+        // Base accent color aligned to canonical semantics
+        const ingColor = isMajor ? "#ef4444" : ing.percentageChange > 20 ? "#f59e0b" : "#3b82f6";
 
         return (
           <group key={ing.ingredientId} position={[xPos, 0, 0]}>
@@ -54,6 +54,7 @@ export function IngredientInflationExplorer() {
                 <group key={pt.date} position={[0, 0, zPos]}>
                   <mesh
                     position={[0, barHeight / 2, 0]}
+                    scale={[0.9, barHeight, 0.5]}
                     castShadow
                     receiveShadow
                     onClick={(e) => {
@@ -70,7 +71,7 @@ export function IngredientInflationExplorer() {
                       setHoveredIngredientId(null);
                     }}
                   >
-                    <boxGeometry args={[0.9, barHeight, 0.5]} />
+                    <boxGeometry args={[1, 1, 1]} />
                     <meshStandardMaterial
                       color={isDateSelected ? "#ffffff" : ingColor}
                       roughness={0.3}

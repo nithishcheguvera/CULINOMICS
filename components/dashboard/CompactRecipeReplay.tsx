@@ -361,8 +361,9 @@ export function CompactRecipeReplay() {
             {/* Play / Pause Toggle Button */}
             <button
               type="button"
+              aria-label={isPlaying ? "Pause timeline playback" : "Play timeline playback"}
               onClick={togglePlay}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm select-none cursor-pointer ${
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm select-none cursor-pointer focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none ${
                 isPlaying
                   ? "bg-amber-500 hover:bg-amber-400 text-neutral-950 shadow-amber-950 border border-amber-300"
                   : "bg-emerald-500 hover:bg-emerald-400 text-neutral-950 shadow-emerald-950 border border-emerald-300"
@@ -375,13 +376,14 @@ export function CompactRecipeReplay() {
             {/* Rewind to Jan */}
             <button
               type="button"
+              aria-label="Rewind to January 2025"
               onClick={() => {
                 if (timelineDates.length > 0) {
                   setSelectedTimelineDate(timelineDates[0]);
                 }
               }}
               title="Rewind to January 2025"
-              className="px-2.5 py-1.5 rounded-lg bg-forest-elevated border border-forest-border text-neutral-300 hover:text-white hover:border-emerald-600/60 text-xs font-mono transition-colors select-none cursor-pointer"
+              className="px-2.5 py-1.5 rounded-lg bg-forest-elevated border border-forest-border text-neutral-300 hover:text-white hover:border-emerald-600/60 text-xs font-mono transition-colors select-none cursor-pointer focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none"
             >
               ⏮ Jan
             </button>
@@ -389,10 +391,11 @@ export function CompactRecipeReplay() {
             {/* Step Prev */}
             <button
               type="button"
+              aria-label="Previous Month"
               onClick={() => stepTimeline("prev")}
               disabled={activeMonthIndex === 0}
               title="Previous Month"
-              className="px-2.5 py-1.5 rounded-lg bg-forest-elevated border border-forest-border text-neutral-300 hover:text-white hover:border-emerald-600/60 text-xs font-mono transition-colors disabled:opacity-30 disabled:cursor-not-allowed select-none cursor-pointer"
+              className="px-2.5 py-1.5 rounded-lg bg-forest-elevated border border-forest-border text-neutral-300 hover:text-white hover:border-emerald-600/60 text-xs font-mono transition-colors disabled:opacity-30 disabled:cursor-not-allowed select-none cursor-pointer focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none"
             >
               ◀ Prev
             </button>
@@ -400,10 +403,11 @@ export function CompactRecipeReplay() {
             {/* Step Next (stops at Dec) */}
             <button
               type="button"
+              aria-label="Next Month (Stops at December 2025)"
               onClick={() => stepTimeline("next")}
               disabled={activeMonthIndex >= timelineDates.length - 1}
               title="Next Month (Stops at December 2025)"
-              className="px-2.5 py-1.5 rounded-lg bg-forest-elevated border border-forest-border text-neutral-300 hover:text-white hover:border-emerald-600/60 text-xs font-mono transition-colors disabled:opacity-30 disabled:cursor-not-allowed select-none cursor-pointer"
+              className="px-2.5 py-1.5 rounded-lg bg-forest-elevated border border-forest-border text-neutral-300 hover:text-white hover:border-emerald-600/60 text-xs font-mono transition-colors disabled:opacity-30 disabled:cursor-not-allowed select-none cursor-pointer focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none"
             >
               Next ▶
             </button>
@@ -411,13 +415,14 @@ export function CompactRecipeReplay() {
             {/* Jump to Dec */}
             <button
               type="button"
+              aria-label="Jump to December 2025"
               onClick={() => {
                 if (timelineDates.length > 0) {
                   setSelectedTimelineDate(timelineDates[timelineDates.length - 1]);
                 }
               }}
               title="Jump to December 2025"
-              className="px-2.5 py-1.5 rounded-lg bg-forest-elevated border border-forest-border text-neutral-300 hover:text-white hover:border-emerald-600/60 text-xs font-mono transition-colors select-none cursor-pointer"
+              className="px-2.5 py-1.5 rounded-lg bg-forest-elevated border border-forest-border text-neutral-300 hover:text-white hover:border-emerald-600/60 text-xs font-mono transition-colors select-none cursor-pointer focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none"
             >
               Dec ⏭
             </button>

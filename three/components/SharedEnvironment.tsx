@@ -7,25 +7,30 @@ interface SharedEnvironmentProps {
   gridSize?: number;
 }
 
-export function SharedEnvironment({ gridSize = 20 }: SharedEnvironmentProps) {
+export function SharedEnvironment({ gridSize = 22 }: SharedEnvironmentProps) {
   return (
     <>
-      {/* Precision Camera Controls */}
+      {/* Precision Camera Controls with Touch & Damping Optimization */}
       <OrbitControls
         makeDefault
         enableDamping
-        dampingFactor={0.06}
+        dampingFactor={0.07}
         minDistance={3}
         maxDistance={25}
         minPolarAngle={0.15}
         maxPolarAngle={Math.PI / 2.05}
+        touches={{
+          ONE: 1, // ROTATE
+          TWO: 2, // DOLLY_PAN
+        }}
       />
 
-      {/* Lighting Rig */}
-      <ambientLight intensity={0.7} />
+      {/* Balanced Lighting Rig for Dark-Forest Palette */}
+      <ambientLight intensity={0.65} />
       <directionalLight
         position={[8, 12, 6]}
-        intensity={1.2}
+        intensity={1.15}
+        color="#f0fdf4"
         castShadow
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
@@ -35,17 +40,18 @@ export function SharedEnvironment({ gridSize = 20 }: SharedEnvironmentProps) {
         shadow-camera-top={10}
         shadow-camera-bottom={-10}
       />
-      <directionalLight position={[-8, 6, -6]} intensity={0.35} color="#93c5fd" />
+      {/* Soft Emerald Rim Light */}
+      <directionalLight position={[-8, 6, -6]} intensity={0.3} color="#34d399" />
 
-      {/* Ground Surface */}
+      {/* Ground Surface: Seamless Dark-Forest Floor */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
         <planeGeometry args={[gridSize + 10, gridSize + 10]} />
-        <meshStandardMaterial color="#111111" roughness={0.85} metalness={0.1} />
+        <meshStandardMaterial color="#08140F" roughness={0.92} metalness={0.08} />
       </mesh>
 
-      {/* Precision Grid Reference */}
+      {/* Precision Grid Reference: Emerald & Forest Muted Gridlines */}
       <gridHelper
-        args={[gridSize, gridSize, "#525252", "#262626"]}
+        args={[gridSize, gridSize, "#1C362A", "#0E231B"]}
         position={[0, 0.001, 0]}
       />
     </>

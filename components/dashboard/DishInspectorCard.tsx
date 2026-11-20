@@ -390,12 +390,13 @@ export function DishInspectorCard({ initialMode = "inspect" }: DishInspectorCard
               </div>
               <input
                 type="range"
+                aria-label="Target Selling Price"
                 min={0}
                 max={priceMax}
                 step={10}
                 value={activeScenario.targetSellingPrice}
                 onChange={(e) => handlePriceChange(Number(e.target.value))}
-                className="w-full accent-emerald-400 cursor-pointer h-1.5 bg-neutral-800 rounded-lg appearance-none"
+                className="w-full accent-emerald-400 cursor-pointer h-2 bg-neutral-800 rounded-lg appearance-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none"
               />
             </div>
 
@@ -412,12 +413,13 @@ export function DishInspectorCard({ initialMode = "inspect" }: DishInspectorCard
               </div>
               <input
                 type="range"
+                aria-label="Target Ingredient Cost"
                 min={0}
                 max={costMax}
                 step={5}
                 value={activeScenario.targetIngredientCost}
                 onChange={(e) => handleCostChange(Number(e.target.value))}
-                className="w-full accent-amber-400 cursor-pointer h-1.5 bg-neutral-800 rounded-lg appearance-none"
+                className="w-full accent-amber-400 cursor-pointer h-2 bg-neutral-800 rounded-lg appearance-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none"
               />
             </div>
 
@@ -434,12 +436,13 @@ export function DishInspectorCard({ initialMode = "inspect" }: DishInspectorCard
               </div>
               <input
                 type="range"
+                aria-label="Target Demand Volume"
                 min={0}
                 max={volumeMax}
                 step={1}
                 value={activeScenario.targetMonthlyVolume}
                 onChange={(e) => handleVolumeChange(Number(e.target.value))}
-                className="w-full accent-sky-400 cursor-pointer h-1.5 bg-neutral-800 rounded-lg appearance-none"
+                className="w-full accent-sky-400 cursor-pointer h-2 bg-neutral-800 rounded-lg appearance-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:outline-none"
               />
             </div>
           </div>
