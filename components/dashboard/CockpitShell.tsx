@@ -4,6 +4,8 @@ import React from "react";
 import dynamic from "next/dynamic";
 import { useAppStore, DashboardTab } from "@/store/useAppStore";
 import { AssistantTriggerButton, AssistantDrawer } from "@/components/assistant";
+import { GuidedTour } from "@/components/tour";
+import { DemoModeBanner, FirstTimeOnboardingModal, GuideMenuPopover } from "@/components/onboarding";
 import { MonthlyKpiCards } from "./MonthlyKpiCards";
 import { DishInspectorCard } from "./DishInspectorCard";
 import { CompactRecipeReplay } from "./CompactRecipeReplay";
@@ -47,7 +49,7 @@ export function CockpitShell({ children }: CockpitShellProps) {
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Restaurant Brand Identity */}
-            <div className="flex items-center space-x-3">
+            <div id="cockpit-header-brand" className="flex items-center space-x-3">
               <div className="w-10 h-10 rounded-xl bg-forest-elevated border border-emerald-500/40 text-emerald-400 flex items-center justify-center font-bold text-lg shadow-sm shadow-emerald-950">
                 OB
               </div>
@@ -66,7 +68,7 @@ export function CockpitShell({ children }: CockpitShellProps) {
               </div>
             </div>
 
-            {/* Currency, Dataset Badge, & Assistant Trigger */}
+            {/* Currency, Dataset Badge, Guide & Assistant Trigger */}
             <div className="flex items-center space-x-2.5">
               <div className="hidden sm:flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-forest-elevated border border-forest-border text-xs font-mono text-neutral-300">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -75,12 +77,13 @@ export function CockpitShell({ children }: CockpitShellProps) {
               <div className="hidden sm:flex items-center px-2.5 py-1 rounded-lg bg-forest-elevated border border-forest-border text-xs font-mono text-neutral-300">
                 <span>Dataset: <strong className={datasetMode === "custom" ? "text-purple-400" : "text-emerald-400"}>{datasetMode === "custom" ? "Custom Import" : "Canonical 2025"}</strong></span>
               </div>
+              <GuideMenuPopover />
               <AssistantTriggerButton />
             </div>
           </div>
 
           {/* Navigation Tab Bar */}
-          <div className="flex space-x-1 border-t border-forest-border/60 overflow-x-auto py-1.5 scrollbar-none">
+          <div id="cockpit-nav-tabs" className="flex space-x-1 border-t border-forest-border/60 overflow-x-auto py-1.5 scrollbar-none">
             {navTabs.map((item) => {
               const isActive = activeTab === item.id;
               return (
@@ -101,6 +104,9 @@ export function CockpitShell({ children }: CockpitShellProps) {
           </div>
         </div>
       </header>
+
+      {/* Demo Mode Persistent Sandbox Banner */}
+      <DemoModeBanner />
 
       {/* Main Cockpit Body Container */}
       <main className="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-5">
@@ -130,7 +136,7 @@ export function CockpitShell({ children }: CockpitShellProps) {
             {(activeTab === "all" || activeTab === "matrix" || activeTab === "explorer3d") && (
               <div className="grid grid-cols-12 gap-4 lg:gap-5 items-stretch">
                 {/* Left Stage (62% width on desktop): 3D Scene Explorer */}
-                <div className="col-span-12 lg:col-span-7 xl:col-span-8 forest-card rounded-2xl p-4 border border-forest-border flex flex-col justify-between">
+                <div id="scene-stage-container" className="col-span-12 lg:col-span-7 xl:col-span-8 forest-card rounded-2xl p-4 border border-forest-border flex flex-col justify-between">
                   <div className="flex items-center justify-between pb-3 border-b border-forest-border/60 mb-3 select-none">
                     <div className="flex items-center space-x-2">
                       <span className="text-sm">🧊</span>
@@ -183,6 +189,10 @@ export function CockpitShell({ children }: CockpitShellProps) {
 
       {/* Global AI Assistant Drawer */}
       <AssistantDrawer />
+
+      {/* Stage 11: Interactive Guided Tour & First-Time Onboarding Modal */}
+      <GuidedTour />
+      <FirstTimeOnboardingModal />
 
       {/* Footer */}
       <footer className="border-t border-forest-border/60 py-4 mt-8 select-none">

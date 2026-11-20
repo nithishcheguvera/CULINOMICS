@@ -114,6 +114,7 @@ export function DishInspectorCard({ initialMode = "inspect" }: DishInspectorCard
 
   return (
     <div
+      id="dish-inspector-card"
       aria-label="Dish Inspector Card"
       className="forest-card rounded-2xl p-4 sm:p-5 border border-forest-border flex flex-col justify-between h-full space-y-4"
     >

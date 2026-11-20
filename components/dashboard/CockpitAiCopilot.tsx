@@ -92,6 +92,7 @@ export function CockpitAiCopilot() {
 
   return (
     <div
+      id="cockpit-ai-copilot"
       data-testid="cockpit-ai-copilot"
       className="forest-card rounded-2xl border border-forest-border p-4 sm:p-5 flex flex-col space-y-4 shadow-xl"
     >

@@ -214,6 +214,32 @@ export interface AppState {
   toggleAssistant: () => void;
   sendAssistantMessage: (message: string) => Promise<void>;
   clearAssistantHistory: () => void;
+
+  // Stage 11: Demo Mode & Interactive Guided Tour
+  isDemoMode: boolean;
+  liveStateSnapshot: LiveStateSnapshot | null;
+  isTourOpen: boolean;
+  currentTourStep: number;
+  isOnboardingModalOpen: boolean;
+
+  enterDemoMode: () => Promise<void>;
+  exitDemoMode: () => Promise<void>;
+  resetDemoScenario: () => void;
+  startTour: () => void;
+  nextTourStep: () => void;
+  prevTourStep: () => void;
+  skipTour: () => void;
+  setTourStep: (step: number) => void;
+  setIsOnboardingModalOpen: (open: boolean) => void;
+}
+
+export interface LiveStateSnapshot {
+  dataset: StoryDataset | null;
+  datasetMode: DatasetMode;
+  selectedDishId: string;
+  selectedTimelineDate: string | null;
+  activeTab: DashboardTab;
+  activeScenario: DishSimulationScenario | null;
 }
 
 export interface AssistantChatMessage {
@@ -737,5 +763,169 @@ export const useAppStore = create<AppState>((set, get) => ({
       const message = err instanceof Error ? err.message : "Failed to restore demo dataset";
       set({ isLoading: false, error: message });
     }
+  },
+
+  // Stage 11: Demo Mode & Interactive Guided Tour
+  isDemoMode: false,
+  liveStateSnapshot: null,
+  isTourOpen: false,
+  currentTourStep: 0,
+  isOnboardingModalOpen: false,
+
+  enterDemoMode: async () => {
+    const { dataset, datasetMode, selectedDishId, selectedTimelineDate, activeTab, activeScenario, demoDatasetBackup } = get();
+
+    // 1. Capture snapshot of active live state if not already in demo mode
+    const snapshot: LiveStateSnapshot = {
+      dataset,
+      datasetMode,
+      selectedDishId,
+      selectedTimelineDate,
+      activeTab,
+      activeScenario,
+    };
+
+    // 2. Ensure canonical demo dataset is loaded
+    let demoData = demoDatasetBackup;
+    if (!demoData) {
+      demoData = await loadStoryDatasetFromBrowser();
+    }
+    const analytics = computeAnalyticsForDataset(demoData);
+    const demoDish = "truffle-tenderloin";
+    const monthCount = analytics.monthlyPerformance.length || 12;
+
+    // 3. Illustrative simulated scenario for demo (+15% price, +5% volume)
+    const simBase = computeScenarioState(demoDish, analytics.dishProfitability, analytics.menuEngineering, monthCount);
+    let demoScenario = simBase.activeScenario;
+    let demoScenarioResult = simBase.scenarioResult;
+
+    if (demoScenario && analytics.menuEngineering) {
+      const targetPrice = Math.round(demoScenario.targetSellingPrice * 1.15);
+      const targetCost = demoScenario.targetIngredientCost;
+      const targetVolume = Math.max(1, Math.round(demoScenario.targetMonthlyVolume * 1.05));
+      const illustrativeScenario: DishSimulationScenario = {
+        ...demoScenario,
+        targetSellingPrice: targetPrice,
+        targetIngredientCost: targetCost,
+        targetMonthlyVolume: targetVolume,
+      };
+      demoScenarioResult = simulateDishScenario(
+        analytics.dishProfitability,
+        analytics.menuEngineering,
+        illustrativeScenario,
+        monthCount
+      );
+      demoScenario = illustrativeScenario;
+    }
+
+    const defaultDate = analytics.timelineDates[analytics.timelineDates.length - 1] || "2025-12-01";
+
+    set({
+      isDemoMode: true,
+      liveStateSnapshot: snapshot,
+      dataset: demoData,
+      demoDatasetBackup: demoData,
+      datasetMode: "demo",
+      selectedDishId: demoDish,
+      selectedTimelineDate: defaultDate,
+      isPlaying: false,
+      activeScenario: demoScenario,
+      scenarioResult: demoScenarioResult,
+      ...analytics,
+      error: null,
+    });
+  },
+
+  exitDemoMode: async () => {
+    const { liveStateSnapshot } = get();
+    if (!liveStateSnapshot) {
+      set({ isDemoMode: false });
+      return;
+    }
+
+    const { dataset, datasetMode, selectedDishId, selectedTimelineDate, activeTab, activeScenario } = liveStateSnapshot;
+
+    if (dataset) {
+      const analytics = computeAnalyticsForDataset(dataset);
+      const monthCount = analytics.monthlyPerformance.length || 12;
+      const simState = (activeScenario && analytics.menuEngineering)
+        ? {
+            activeScenario,
+            scenarioResult: simulateDishScenario(
+              analytics.dishProfitability,
+              analytics.menuEngineering,
+              activeScenario,
+              monthCount
+            ),
+          }
+        : computeScenarioState(selectedDishId, analytics.dishProfitability, analytics.menuEngineering, monthCount);
+
+      set({
+        isDemoMode: false,
+        liveStateSnapshot: null,
+        dataset,
+        datasetMode,
+        selectedDishId,
+        selectedTimelineDate,
+        activeTab,
+        isPlaying: false,
+        ...simState,
+        ...analytics,
+        error: null,
+      });
+    } else {
+      set({
+        isDemoMode: false,
+        liveStateSnapshot: null,
+      });
+    }
+  },
+
+  resetDemoScenario: () => {
+    const { dishProfitability, menuEngineering, monthlyPerformance } = get();
+    const demoDish = "truffle-tenderloin";
+    const monthCount = monthlyPerformance.length || 12;
+    const simState = computeScenarioState(
+      demoDish,
+      dishProfitability,
+      menuEngineering,
+      monthCount
+    );
+    set({
+      selectedDishId: demoDish,
+      ...simState,
+    });
+  },
+
+  startTour: () => {
+    set({ isTourOpen: true, currentTourStep: 0 });
+  },
+
+  nextTourStep: () => {
+    const current = get().currentTourStep;
+    if (current < 11) {
+      set({ currentTourStep: current + 1 });
+    } else {
+      set({ isTourOpen: false });
+    }
+  },
+
+  prevTourStep: () => {
+    const current = get().currentTourStep;
+    if (current > 0) {
+      set({ currentTourStep: current - 1 });
+    }
+  },
+
+  skipTour: () => {
+    set({ isTourOpen: false });
+  },
+
+  setTourStep: (currentTourStep: number) => {
+    set({ currentTourStep, isTourOpen: true });
+  },
+
+  setIsOnboardingModalOpen: (isOnboardingModalOpen: boolean) => {
+    set({ isOnboardingModalOpen });
   },
 }));

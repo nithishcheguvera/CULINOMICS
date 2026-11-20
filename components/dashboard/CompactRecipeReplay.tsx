@@ -160,6 +160,7 @@ export function CompactRecipeReplay() {
 
   return (
     <section
+      id="compact-recipe-replay"
       aria-label="Recipe Replay Time Intelligence Runway"
       className="forest-card rounded-2xl p-4 sm:p-5 border border-forest-border space-y-4"
     >
@@ -222,18 +223,16 @@ export function CompactRecipeReplay() {
               key={dish.dishId}
               type="button"
               onClick={() => setSelectedDishId(dish.dishId)}
-              className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-all select-none cursor-pointer ${
-                isSelected
-                  ? "bg-emerald-500 text-neutral-950 font-bold shadow-sm"
-                  : "bg-forest-elevated/70 border border-forest-border text-neutral-400 hover:text-white hover:border-forest-border/80"
-              }`}
+              className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-all select-none cursor-pointer ${isSelected
+                ? "bg-emerald-500 text-neutral-950 font-bold shadow-sm"
+                : "bg-forest-elevated/70 border border-forest-border text-neutral-400 hover:text-white hover:border-forest-border/80"
+                }`}
             >
               <span>{dish.dishName}</span>
               {isHurt && (
                 <span
-                  className={`w-1.5 h-1.5 rounded-full ${
-                    isSelected ? "bg-amber-950" : "bg-amber-400"
-                  }`}
+                  className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-amber-950" : "bg-amber-400"
+                    }`}
                 />
               )}
             </button>
@@ -338,16 +337,15 @@ export function CompactRecipeReplay() {
         <div className="p-2.5 rounded-xl bg-forest-elevated/60 border border-forest-border flex flex-col justify-between">
           <span className="text-[11px] text-neutral-400 font-medium">Annual Surge (Jan→Dec)</span>
           <span
-            className={`text-sm font-bold font-mono mt-1 ${
-              currentImpact && currentImpact.costIncreasePercentage > 0
-                ? "text-amber-400"
-                : "text-emerald-400"
-            }`}
+            className={`text-sm font-bold font-mono mt-1 ${currentImpact && currentImpact.costIncreasePercentage > 0
+              ? "text-amber-400"
+              : "text-emerald-400"
+              }`}
           >
             {currentImpact
               ? `+${formatINR(currentImpact.costIncreaseAbsolute, {
-                  showDecimals: true,
-                })} (+${currentImpact.costIncreasePercentage.toFixed(1)}%)`
+                showDecimals: true,
+              })} (+${currentImpact.costIncreasePercentage.toFixed(1)}%)`
               : "—"}
           </span>
         </div>
@@ -363,11 +361,10 @@ export function CompactRecipeReplay() {
               type="button"
               aria-label={isPlaying ? "Pause timeline playback" : "Play timeline playback"}
               onClick={togglePlay}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm select-none cursor-pointer focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none ${
-                isPlaying
-                  ? "bg-amber-500 hover:bg-amber-400 text-neutral-950 shadow-amber-950 border border-amber-300"
-                  : "bg-emerald-500 hover:bg-emerald-400 text-neutral-950 shadow-emerald-950 border border-emerald-300"
-              }`}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm select-none cursor-pointer focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none ${isPlaying
+                ? "bg-amber-500 hover:bg-amber-400 text-neutral-950 shadow-amber-950 border border-amber-300"
+                : "bg-emerald-500 hover:bg-emerald-400 text-neutral-950 shadow-emerald-950 border border-emerald-300"
+                }`}
             >
               <span>{isPlaying ? "⏸" : "▶"}</span>
               <span>{isPlaying ? "Pause" : "Play 2025 Runway"}</span>
@@ -448,25 +445,23 @@ export function CompactRecipeReplay() {
                 type="button"
                 onClick={() => setSelectedTimelineDate(date)}
                 title={`Set timeline to ${monthName} 2025`}
-                className={`group flex flex-col items-center justify-center py-1.5 sm:py-2 px-1 rounded-lg border text-center transition-all select-none cursor-pointer ${
-                  isSelected
-                    ? "bg-emerald-500 border-emerald-400 text-neutral-950 font-bold shadow-md shadow-emerald-950 scale-[1.02] z-10"
-                    : isPastOrCurrent
+                className={`group flex flex-col items-center justify-center py-1.5 sm:py-2 px-1 rounded-lg border text-center transition-all select-none cursor-pointer ${isSelected
+                  ? "bg-emerald-500 border-emerald-400 text-neutral-950 font-bold shadow-md shadow-emerald-950 scale-[1.02] z-10"
+                  : isPastOrCurrent
                     ? "bg-forest-elevated/70 border-emerald-900/60 text-emerald-300/80 hover:bg-forest-elevated hover:text-white hover:border-emerald-700/80"
                     : "bg-forest-elevated/30 border-forest-border/40 text-neutral-500 hover:bg-forest-elevated/60 hover:text-neutral-300"
-                }`}
+                  }`}
               >
                 <span className="text-[10px] sm:text-xs font-semibold tracking-tight leading-tight">
                   {monthName}
                 </span>
                 <span
-                  className={`w-1.5 h-1.5 rounded-full mt-1 transition-all ${
-                    isSelected
-                      ? "bg-neutral-950 animate-pulse"
-                      : isPastOrCurrent
+                  className={`w-1.5 h-1.5 rounded-full mt-1 transition-all ${isSelected
+                    ? "bg-neutral-950 animate-pulse"
+                    : isPastOrCurrent
                       ? "bg-emerald-400/80"
                       : "bg-neutral-700"
-                  }`}
+                    }`}
                 />
               </button>
             );

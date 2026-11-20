@@ -36,7 +36,7 @@ export function MonthlyKpiCards() {
   const isBaseline = safeIndex === 0;
 
   return (
-    <div className="space-y-3">
+    <div id="monthly-kpi-cards" className="space-y-3">
       {/* Month Selector / Scrubber Row */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3 py-2 rounded-xl bg-forest-surface/90 border border-forest-border select-none">
         <div className="flex items-center space-x-2">

@@ -108,6 +108,7 @@ export function CompactMenuSurgery() {
 
   return (
     <section
+      id="compact-menu-surgery"
       aria-label="Menu Surgery Cockpit Lab"
       className="forest-card rounded-2xl p-4 sm:p-5 border border-forest-border space-y-4"
     >
@@ -152,11 +153,10 @@ export function CompactMenuSurgery() {
             type="button"
             onClick={resetScenario}
             disabled={!isModified}
-            className={`flex items-center space-x-1 px-2.5 py-1 rounded-lg text-xs font-mono transition-all select-none cursor-pointer border ${
-              isModified
-                ? "bg-forest-elevated hover:bg-forest-border text-amber-300 border-amber-600/50 shadow-sm"
-                : "opacity-40 cursor-not-allowed bg-forest-elevated/40 text-neutral-500 border-forest-border"
-            }`}
+            className={`flex items-center space-x-1 px-2.5 py-1 rounded-lg text-xs font-mono transition-all select-none cursor-pointer border ${isModified
+              ? "bg-forest-elevated hover:bg-forest-border text-amber-300 border-amber-600/50 shadow-sm"
+              : "opacity-40 cursor-not-allowed bg-forest-elevated/40 text-neutral-500 border-forest-border"
+              }`}
             title="Reset active scenario to verified historical baseline"
           >
             <span>↺</span>
@@ -177,11 +177,10 @@ export function CompactMenuSurgery() {
               key={dish.dishId}
               type="button"
               onClick={() => setSelectedDishId(dish.dishId)}
-              className={`flex items-center space-x-1 px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-all select-none cursor-pointer ${
-                isSelected
-                  ? "bg-emerald-500 text-neutral-950 font-bold shadow-sm"
-                  : "bg-forest-elevated/70 border border-forest-border text-neutral-400 hover:text-white hover:border-forest-border/80"
-              }`}
+              className={`flex items-center space-x-1 px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-all select-none cursor-pointer ${isSelected
+                ? "bg-emerald-500 text-neutral-950 font-bold shadow-sm"
+                : "bg-forest-elevated/70 border border-forest-border text-neutral-400 hover:text-white hover:border-forest-border/80"
+                }`}
             >
               <span>{dish.dishName}</span>
             </button>
