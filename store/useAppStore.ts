@@ -143,6 +143,9 @@ export interface AppState {
   threeMode: ThreeVisualizationMode;
   selectedTimelineDate: string | null;
 
+  // Time Intelligence & Playback (Phase 3B)
+  isPlaying: boolean;
+
   // Menu Surgery Simulator state (Stage 7)
   activeScenario: DishSimulationScenario | null;
   scenarioResult: DishSimulationResult | null;
@@ -165,6 +168,9 @@ export interface AppState {
   setThreeMode: (mode: ThreeVisualizationMode) => void;
   setSelectedTimelineDate: (date: string) => void;
   setSelectedMonthIndex: (index: number) => void;
+  setIsPlaying: (isPlaying: boolean) => void;
+  togglePlay: () => void;
+  stepTimeline: (direction: "prev" | "next") => void;
   getDishIngredientBreakdown: (dishId?: string, date?: string) => DishIngredientBreakdown | null;
 
   // AI Assistant actions
@@ -248,6 +254,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   threeMode: "profitability-landscape",
   selectedTimelineDate: null,
+  isPlaying: false,
 
   activeScenario: null,
   scenarioResult: null,
@@ -351,6 +358,52 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
+  setIsPlaying: (isPlaying: boolean) => set({ isPlaying }),
+
+  togglePlay: () => {
+    const { isPlaying, timelineDates, selectedTimelineDate } = get();
+    if (isPlaying) {
+      set({ isPlaying: false });
+    } else {
+      const dates = timelineDates;
+      if (!dates || dates.length === 0) return;
+      const currentDate = selectedTimelineDate || dates[dates.length - 1];
+      const currentIndex = dates.indexOf(currentDate);
+      // If paused at or beyond the last month (December), rewind to January before playing
+      if (currentIndex >= dates.length - 1) {
+        set({ isPlaying: true, selectedTimelineDate: dates[0] });
+      } else {
+        set({ isPlaying: true });
+      }
+    }
+  },
+
+  stepTimeline: (direction: "prev" | "next") => {
+    const dates = get().timelineDates;
+    if (!dates || dates.length === 0) return;
+    const currentDate = get().selectedTimelineDate || dates[dates.length - 1];
+    const currentIndex = dates.indexOf(currentDate);
+
+    if (direction === "next") {
+      if (currentIndex < dates.length - 1) {
+        const nextIndex = currentIndex + 1;
+        set({ selectedTimelineDate: dates[nextIndex] });
+        // MANDATORY INVARIANT 1: Stop at December 2025. Never wrap to January.
+        if (nextIndex >= dates.length - 1) {
+          set({ isPlaying: false });
+        }
+      } else {
+        // Already at December
+        set({ isPlaying: false });
+      }
+    } else {
+      // "prev"
+      if (currentIndex > 0) {
+        set({ selectedTimelineDate: dates[currentIndex - 1] });
+      }
+    }
+  },
+
   getDishIngredientBreakdown: (dishId, date) => {
     const dataset = get().dataset;
     if (!dataset) return null;
@@ -437,6 +490,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         datasetMode: "demo",
         selectedDishId: defaultDish,
         selectedTimelineDate: defaultDate,
+        isPlaying: false,
         ...simState,
         ...analytics,
         isLoading: false,
@@ -468,6 +522,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         datasetMode: "demo",
         selectedDishId: defaultDish,
         selectedTimelineDate: defaultDate,
+        isPlaying: false,
         ...simState,
         isLoading: false,
         error: null,
@@ -505,6 +560,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         datasetMode: "custom",
         selectedDishId: firstDish,
         selectedTimelineDate: defaultDate,
+        isPlaying: false,
         ...simState,
         error: null,
         ...analytics,
@@ -545,6 +601,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         datasetMode: "demo",
         selectedDishId: defaultDish,
         selectedTimelineDate: defaultDate,
+        isPlaying: false,
         ...simState,
         isLoading: false,
         error: null,

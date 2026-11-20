@@ -6,6 +6,7 @@ import { useAppStore, DashboardTab } from "@/store/useAppStore";
 import { AssistantTriggerButton, AssistantDrawer } from "@/components/assistant";
 import { MonthlyKpiCards } from "./MonthlyKpiCards";
 import { DishInspectorCard } from "./DishInspectorCard";
+import { CompactRecipeReplay } from "./CompactRecipeReplay";
 import { ScenePlaceholder } from "@/three/ScenePlaceholder";
 
 // Client-side dynamic import of 3D Scene Explorer with SSR disabled
@@ -148,6 +149,11 @@ export function CockpitShell({ children }: CockpitShellProps) {
                   <DishInspectorCard />
                 </div>
               </div>
+            )}
+
+            {/* Phase 3B: Compact Recipe Replay Time Intelligence Runway */}
+            {(activeTab === "all" || activeTab === "matrix" || activeTab === "explorer3d") && (
+              <CompactRecipeReplay />
             )}
 
             {/* Sub-Views / Secondary Section Panels based on Tab Navigation */}
