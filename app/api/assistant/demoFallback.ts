@@ -257,6 +257,87 @@ export function generateDeterministicFallbackResponse(
     };
   }
 
+  // Route F: Profit Forecast
+  if (
+    q.includes("forecast") ||
+    q.includes("projection") ||
+    q.includes("predict") ||
+    q.includes("future") ||
+    q.includes("2026") ||
+    q.includes("trend line")
+  ) {
+    const horizon = q.includes("6") ? 6 : 3;
+    const forecastOutput = executeToolByName("getProfitForecast", { horizonMonths: horizon }, ctx);
+    const facts = forecastOutput.authoritativeFacts;
+
+    const baseRev = facts.find((f) => f.metric === "projectedRevenue");
+    const baseProfit = facts.find((f) => f.metric === "projectedGrossProfit");
+    const baseMargin = facts.find((f) => f.metric === "overallMarginPercentage");
+    const conProfit = facts.find((f) => f.metric === "conservativeGrossProfit");
+    const optProfit = facts.find((f) => f.metric === "optimisticGrossProfit");
+
+    const message = [
+      `[Deterministic Engine Analysis — Offline Fallback Mode]`,
+      `Deterministic Profit Forecast (${horizon}-Month Runway):`,
+      `- Baseline Projected Revenue: ${baseRev?.formattedValue ?? "N/A"}`,
+      `- Baseline Projected Contribution: ${baseProfit?.formattedValue ?? "N/A"} (Margin: ${baseMargin?.formattedValue ?? "N/A"})`,
+      `- Conservative Scenario: ${conProfit?.formattedValue ?? "N/A"} (+25% inflation surge, -5% volume dip)`,
+      `- Optimistic Scenario: ${optProfit?.formattedValue ?? "N/A"} (Cost stabilization, +5% volume growth)`,
+      `\nMethodology: Ordinary Least Squares (OLS) linear trend extrapolation with 80% prediction confidence bands.`,
+    ].join("\n");
+
+    const action: VisualizationAction = {
+      actionType: "SET_ACTIVE_TAB",
+      tab: "forecast",
+      label: `Open ${horizon}-Month Profit Forecast`,
+    };
+
+    return {
+      assistantMessage: message,
+      authoritativeFacts: facts,
+      visualizationAction: action,
+      completeness: forecastOutput.completeness,
+    };
+  }
+
+  // Route G: Menu Combo Optimizer
+  if (
+    q.includes("combo") ||
+    q.includes("bundle") ||
+    q.includes("optimizer") ||
+    q.includes("pairing") ||
+    q.includes("trio")
+  ) {
+    const comboOutput = executeToolByName("getRecommendedCombos", { bundleDiscountPercentage: 10 }, ctx);
+    const facts = comboOutput.authoritativeFacts;
+
+    const objFact = facts.find((f) => f.metric === "monthlyContribution");
+    const platesFact = facts.find((f) => f.metric === "totalSalesVolume");
+    const marginFact = facts.find((f) => f.metric === "overallMarginPercentage");
+
+    const message = [
+      `[Deterministic Engine Analysis — Offline Fallback Mode]`,
+      `Menu Combo Optimizer Recommendations (10% Bundle Discount):`,
+      `- Optimal Monthly Contribution: ${objFact?.formattedValue ?? "N/A"}`,
+      `- Total Production Capacity Used: ${platesFact?.formattedValue ?? "N/A"} plates/month`,
+      `- Portfolio Average Margin: ${marginFact?.formattedValue ?? "N/A"}`,
+      `\nStrategic Pairing: Combines high-margin Puzzles and Dogs with volume-driving Stars and Plowhorses to maximize kitchen contribution.`,
+    ].join("\n");
+
+    const action: VisualizationAction = {
+      actionType: "SET_ACTIVE_TAB",
+      tab: "optimizer",
+      label: "Open Combo Optimizer",
+    };
+
+    return {
+      assistantMessage: message,
+      authoritativeFacts: facts,
+      visualizationAction: action,
+      completeness: comboOutput.completeness,
+    };
+  }
+
   // Route E: Default Restaurant-Level Financial Summary
   const summaryOutput = executeToolByName("getRestaurantFinancialSummary", {}, ctx);
   const facts = summaryOutput.authoritativeFacts;

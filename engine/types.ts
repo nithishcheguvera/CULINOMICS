@@ -164,3 +164,142 @@ export interface DishIngredientBreakdown {
   totalRecipeCost: number; // Reconciled against calculateRecipeCostForDate
   ingredients: DishIngredientBreakdownItem[]; // Sorted descending by ingredientCost
 }
+
+// ============================================================================
+// STAGE 10: PROFIT FORECAST, COMBO OPTIMIZER & EXECUTIVE REPORT TYPES
+// ============================================================================
+
+export type ForecastScenario = "baseline" | "conservative" | "optimistic";
+
+export interface ForecastPoint {
+  date: string; // YYYY-MM-DD
+  monthIndex: number; // 13, 14, ...
+  monthLabel: string; // "Jan 2026", "Feb 2026", etc.
+  projectedRevenue: number;
+  projectedIngredientCost: number;
+  projectedGrossProfit: number;
+  projectedGrossMarginPercentage: number;
+  projectedSalesVolume: number;
+  confidenceInterval: {
+    revenueLower: number;
+    revenueUpper: number;
+    profitLower: number;
+    profitUpper: number;
+  };
+  isForecast: true;
+}
+
+export interface ForecastScenarioResult {
+  scenario: ForecastScenario;
+  label: string;
+  description: string;
+  horizonMonths: number;
+  forecastPoints: ForecastPoint[];
+  totalProjectedRevenue: number;
+  totalProjectedCost: number;
+  totalProjectedGrossProfit: number;
+  averageProjectedMarginPercentage: number;
+}
+
+export interface ForecastAssumptions {
+  historicalMonthsCount: number;
+  olsRevenueSlope: number;
+  olsRevenueIntercept: number;
+  olsCostSlope: number;
+  olsCostIntercept: number;
+  revenueStandardError: number;
+  costStandardError: number;
+  rSquaredRevenue: number;
+  notes: string[];
+}
+
+export interface ProfitForecastResult {
+  historicalPoints: MonthlyFinancialPerformance[];
+  horizonMonths: number;
+  scenarios: {
+    baseline: ForecastScenarioResult;
+    conservative: ForecastScenarioResult;
+    optimistic: ForecastScenarioResult;
+  };
+  assumptions: ForecastAssumptions;
+  limitations: string[];
+}
+
+export interface ComboDishItem {
+  dishId: string;
+  dishName: string;
+  category: MenuEngineeringCategory;
+  unitSellingPrice: number;
+  unitIngredientCost: number;
+  contributionMargin: number;
+}
+
+export interface ComboCandidate {
+  comboId: string;
+  comboName: string;
+  comboType: "PAIR" | "TRIO";
+  rationale: string;
+  dishes: ComboDishItem[];
+  combinedMenuPrice: number; // Sum of individual selling prices
+  bundleDiscountPercentage: number; // e.g. 10
+  comboSellingPrice: number; // Discounted combo price in INR
+  totalIngredientCost: number; // Sum of ingredient costs
+  comboContribution: number; // comboSellingPrice - totalIngredientCost
+  comboMarginPercentage: number; // (comboContribution / comboSellingPrice) * 100
+  savingsForGuest: number; // combinedMenuPrice - comboSellingPrice
+  recommendedMonthlyUnits: number; // Solved by javascript-lp-solver
+  projectedMonthlyContribution: number; // recommendedMonthlyUnits * comboContribution
+}
+
+export interface ComboOptimizationConstraints {
+  monthlyPlateCapacity: number; // e.g. 2000 plates
+  bundleDiscountPercentage: number; // e.g. 10
+  optimizationGoal: "MAXIMIZE_CONTRIBUTION" | "MAXIMIZE_MARGIN";
+  minUnitsPerOfferedCombo?: number;
+}
+
+export interface ComboOptimizationResult {
+  isFeasible: boolean;
+  objectiveValue: number; // Total solved monthly contribution in INR
+  totalComboPlatesSold: number;
+  monthlyPlateBudget: number;
+  averageComboMarginPercentage: number;
+  combos: ComboCandidate[];
+  constraintsApplied: ComboOptimizationConstraints;
+  disclaimer: string;
+}
+
+export interface ExecutiveReportData {
+  metadata: {
+    restaurantName: string;
+    reportTitle: string;
+    generatedDate: string;
+    datasetMode: string;
+    provenance: string;
+  };
+  kpis: {
+    annualRevenue: number;
+    annualIngredientCost: number;
+    annualGrossContribution: number;
+    overallMarginPercentage: number;
+    totalSalesVolume: number;
+  };
+  monthlyRunway: MonthlyFinancialPerformance[];
+  menuDishes: DishProfitability[];
+  menuEngineering: MenuEngineeringResult | null;
+  inflationHurtDishes: InflationImpactDish[];
+  topSurgingIngredients: {
+    ingredientName: string;
+    unit: string;
+    startPrice: number;
+    endPrice: number;
+    percentageChange: number;
+  }[];
+  forecastSummary?: {
+    horizonMonths: number;
+    baselineRevenue: number;
+    baselineContribution: number;
+    baselineMarginPercentage: number;
+  };
+  topCombos?: ComboCandidate[];
+}

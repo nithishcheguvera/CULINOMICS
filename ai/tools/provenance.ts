@@ -34,6 +34,14 @@ export const CANONICAL_TOOL_PROVENANCE = {
     sourceTool: "simulateMenuSurgeryScenario",
     sourceFunction: "simulateDishScenario",
   },
+  getProfitForecast: {
+    sourceTool: "getProfitForecast",
+    sourceFunction: "calculateProfitForecast",
+  },
+  getRecommendedCombos: {
+    sourceTool: "getRecommendedCombos",
+    sourceFunction: "solveComboOptimization",
+  },
 } as const;
 
 export type CanonicalToolName = keyof typeof CANONICAL_TOOL_PROVENANCE;

@@ -10,3 +10,7 @@ export * from "./FinancialOverviewSection";
 export * from "./MenuMatrixSection";
 export * from "./DishProfitabilitySection";
 export * from "./RecipeReplaySection";
+export * from "./ProfitForecastSection";
+export * from "./ComboOptimizerSection";
+export * from "./ReportExportSection";
+

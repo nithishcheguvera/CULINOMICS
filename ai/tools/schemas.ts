@@ -89,3 +89,23 @@ export const SimulateMenuSurgerySchema = z.object({
     .optional(),
 });
 export type SimulateMenuSurgeryArgs = z.infer<typeof SimulateMenuSurgerySchema>;
+
+/**
+ * Tool 8: getProfitForecast
+ * Calculates deterministic OLS profit forecast over 3 or 6 month horizon with 3 scenarios.
+ */
+export const GetProfitForecastSchema = z.object({
+  horizonMonths: z.union([z.literal(3), z.literal(6)]).optional(),
+});
+export type GetProfitForecastArgs = z.infer<typeof GetProfitForecastSchema>;
+
+/**
+ * Tool 9: getRecommendedCombos
+ * Generates strategic combos and solves linear programming mix optimization.
+ */
+export const GetRecommendedCombosSchema = z.object({
+  bundleDiscountPercentage: z.number().min(0).max(50).optional(),
+  monthlyPlateCapacity: z.number().positive().max(100000).optional(),
+});
+export type GetRecommendedCombosArgs = z.infer<typeof GetRecommendedCombosSchema>;
+

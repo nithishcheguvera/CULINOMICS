@@ -25,9 +25,31 @@ import {
   IngredientInflation,
   calculateDishIngredientBreakdown,
   DishIngredientBreakdown,
+  calculateProfitForecast,
+  ProfitForecastResult,
+  ForecastScenario,
+  generateComboCandidates,
+  solveComboOptimization,
+  ComboOptimizationResult,
+  compileExecutiveReportData,
+  ExecutiveReportData,
+  generateFinancialSummaryCSV,
+  generateDishMatrixCSV,
+  generateForecastAndCombosCSV,
 } from "@/engine";
 
-export type DashboardTab = "all" | "overview" | "matrix" | "profitability" | "replay" | "explorer3d" | "import" | "simulator";
+export type DashboardTab =
+  | "all"
+  | "overview"
+  | "matrix"
+  | "profitability"
+  | "replay"
+  | "explorer3d"
+  | "import"
+  | "simulator"
+  | "forecast"
+  | "optimizer"
+  | "report";
 
 export type ThreeVisualizationMode =
   | "profitability-landscape"
@@ -173,6 +195,20 @@ export interface AppState {
   stepTimeline: (direction: "prev" | "next") => void;
   getDishIngredientBreakdown: (dishId?: string, date?: string) => DishIngredientBreakdown | null;
 
+  // Stage 10: Forecast, Combo Optimizer & Report Export
+  forecastHorizon: 3 | 6;
+  forecastScenario: ForecastScenario;
+  comboDiscountPercentage: number;
+  comboCapacity: number;
+
+  setForecastHorizon: (horizon: 3 | 6) => void;
+  setForecastScenario: (scenario: ForecastScenario) => void;
+  setComboDiscountPercentage: (discount: number) => void;
+  setComboCapacity: (capacity: number) => void;
+  getProfitForecast: () => ProfitForecastResult | null;
+  getComboOptimization: () => ComboOptimizationResult | null;
+  getExecutiveReport: () => ExecutiveReportData | null;
+
   // AI Assistant actions
   setIsAssistantOpen: (open: boolean) => void;
   toggleAssistant: () => void;
@@ -258,6 +294,78 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   activeScenario: null,
   scenarioResult: null,
+
+  forecastHorizon: 3,
+  forecastScenario: "baseline",
+  comboDiscountPercentage: 10,
+  comboCapacity: 1500,
+
+  setForecastHorizon: (forecastHorizon) => set({ forecastHorizon }),
+  setForecastScenario: (forecastScenario) => set({ forecastScenario }),
+  setComboDiscountPercentage: (comboDiscountPercentage) => set({ comboDiscountPercentage }),
+  setComboCapacity: (comboCapacity) => set({ comboCapacity }),
+
+  getProfitForecast: () => {
+    const { monthlyPerformance, forecastHorizon } = get();
+    if (!monthlyPerformance || monthlyPerformance.length === 0) return null;
+    try {
+      return calculateProfitForecast(monthlyPerformance, forecastHorizon);
+    } catch {
+      return null;
+    }
+  },
+
+  getComboOptimization: () => {
+    const { menuEngineering, dishProfitability, comboDiscountPercentage, comboCapacity } = get();
+    if (!menuEngineering || dishProfitability.length === 0) return null;
+    try {
+      const candidates = generateComboCandidates(menuEngineering, dishProfitability, comboDiscountPercentage);
+      return solveComboOptimization(
+        candidates,
+        {
+          monthlyPlateCapacity: comboCapacity,
+          bundleDiscountPercentage: comboDiscountPercentage,
+          optimizationGoal: "MAXIMIZE_CONTRIBUTION",
+        },
+        dishProfitability
+      );
+    } catch {
+      return null;
+    }
+  },
+
+  getExecutiveReport: () => {
+    const {
+      datasetMode,
+      kpis,
+      monthlyPerformance,
+      dishProfitability,
+      menuEngineering,
+      inflationImpact,
+      ingredientInflation,
+    } = get();
+
+    if (!monthlyPerformance || monthlyPerformance.length === 0) return null;
+
+    try {
+      const forecastResult = get().getProfitForecast();
+      const comboResult = get().getComboOptimization();
+      return compileExecutiveReportData({
+        restaurantName: "Osteria Bella",
+        datasetMode: datasetMode === "demo" ? "Canonical 2025" : "Custom User Dataset",
+        kpis,
+        monthlyPerformance,
+        dishProfitability,
+        menuEngineering,
+        inflationImpact,
+        ingredientInflation,
+        forecastResult,
+        comboResult,
+      });
+    } catch {
+      return null;
+    }
+  },
 
   isAssistantOpen: false,
   isAssistantLoading: false,

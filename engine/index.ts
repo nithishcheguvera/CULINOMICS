@@ -11,4 +11,8 @@ export * from "./inflationImpact";
 export * from "./simulator";
 export * from "./ingredientBreakdown";
 export * from "./monthlyComparison";
+export * from "./forecast";
+export * from "./comboOptimizer";
+export * from "./reportData";
+
 

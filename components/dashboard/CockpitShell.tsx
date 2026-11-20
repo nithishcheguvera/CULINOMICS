@@ -29,6 +29,9 @@ export function CockpitShell({ children }: CockpitShellProps) {
 
   const navTabs: { id: DashboardTab; label: string; icon: string }[] = [
     { id: "all", label: "Cockpit Overview", icon: "🧭" },
+    { id: "forecast", label: "Profit Forecast", icon: "📈" },
+    { id: "optimizer", label: "Combo Optimizer", icon: "🍱" },
+    { id: "report", label: "Executive Report", icon: "📄" },
     { id: "matrix", label: "Menu Matrix", icon: "⭐" },
     { id: "profitability", label: "Dish Profitability", icon: "💰" },
     { id: "replay", label: "Recipe Replay", icon: "🔄" },

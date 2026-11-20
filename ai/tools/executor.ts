@@ -9,6 +9,9 @@ import {
   calculateSalesAnalysis,
   createInitialScenarioForDish,
   simulateDishScenario,
+  calculateProfitForecast,
+  generateComboCandidates,
+  solveComboOptimization,
 } from "@/engine";
 import { createAuthoritativeFact, AuthoritativeFact } from "./factFactory";
 import {
@@ -19,6 +22,10 @@ import {
   GetRecipeCostBreakdownSchema,
   GetRecipeReplayHistorySchema,
   SimulateMenuSurgerySchema,
+  GetProfitForecastSchema,
+  GetProfitForecastArgs,
+  GetRecommendedCombosSchema,
+  GetRecommendedCombosArgs,
 } from "./schemas";
 import {
   ToolExecutionContext,
@@ -790,7 +797,239 @@ const simulateMenuSurgeryScenarioHandler = {
 };
 
 /**
- * Immutable Typed Tool Registry containing the 7 approved deterministic financial tools.
+ * Tool 8: getProfitForecast
+ */
+const getProfitForecastHandler = {
+  name: "getProfitForecast" as const,
+  description: "Calculates deterministic OLS profit forecast over 3 or 6 month horizon with baseline, conservative, and optimistic scenarios.",
+  schema: GetProfitForecastSchema,
+  execute: (args: GetProfitForecastArgs, ctx: ToolExecutionContext): ToolExecutionOutput => {
+    const horizon = args.horizonMonths ?? 3;
+    const monthlyPerformance = calculateMonthlyPerformance(
+      ctx.dataset.sales,
+      ctx.dataset.recipes,
+      ctx.dataset.ingredientPrices
+    );
+    const forecast = calculateProfitForecast(monthlyPerformance, horizon);
+
+    const facts: AuthoritativeFact[] = [
+      createAuthoritativeFact({
+        id: `forecast-baseline-revenue-${horizon}m`,
+        entityType: "restaurant",
+        entityId: "osteria-bella",
+        entityName: "Restaurant Forecast",
+        metric: "projectedRevenue",
+        label: `${horizon}-Month Baseline Projected Revenue`,
+        rawValue: forecast.scenarios.baseline.totalProjectedRevenue,
+        unit: "INR",
+        sourceTool: "getProfitForecast",
+        timeframe: `${horizon} Months`,
+        datasetMode: ctx.datasetMode,
+      }),
+      createAuthoritativeFact({
+        id: `forecast-baseline-profit-${horizon}m`,
+        entityType: "restaurant",
+        entityId: "osteria-bella",
+        entityName: "Restaurant Forecast",
+        metric: "projectedGrossProfit",
+        label: `${horizon}-Month Baseline Projected Contribution`,
+        rawValue: forecast.scenarios.baseline.totalProjectedGrossProfit,
+        unit: "INR",
+        sourceTool: "getProfitForecast",
+        timeframe: `${horizon} Months`,
+        datasetMode: ctx.datasetMode,
+      }),
+      createAuthoritativeFact({
+        id: `forecast-baseline-margin-${horizon}m`,
+        entityType: "restaurant",
+        entityId: "osteria-bella",
+        entityName: "Restaurant Forecast",
+        metric: "overallMarginPercentage",
+        label: `${horizon}-Month Baseline Average Margin`,
+        rawValue: forecast.scenarios.baseline.averageProjectedMarginPercentage,
+        unit: "%",
+        sourceTool: "getProfitForecast",
+        timeframe: `${horizon} Months`,
+        datasetMode: ctx.datasetMode,
+      }),
+      createAuthoritativeFact({
+        id: `forecast-conservative-profit-${horizon}m`,
+        entityType: "restaurant",
+        entityId: "osteria-bella",
+        entityName: "Restaurant Forecast",
+        metric: "conservativeGrossProfit",
+        label: `${horizon}-Month Conservative Contribution (+25% inflation, -5% volume)`,
+        rawValue: forecast.scenarios.conservative.totalProjectedGrossProfit,
+        unit: "INR",
+        sourceTool: "getProfitForecast",
+        timeframe: `${horizon} Months`,
+        datasetMode: ctx.datasetMode,
+      }),
+      createAuthoritativeFact({
+        id: `forecast-optimistic-profit-${horizon}m`,
+        entityType: "restaurant",
+        entityId: "osteria-bella",
+        entityName: "Restaurant Forecast",
+        metric: "optimisticGrossProfit",
+        label: `${horizon}-Month Optimistic Contribution (stabilization, +5% volume)`,
+        rawValue: forecast.scenarios.optimistic.totalProjectedGrossProfit,
+        unit: "INR",
+        sourceTool: "getProfitForecast",
+        timeframe: `${horizon} Months`,
+        datasetMode: ctx.datasetMode,
+      }),
+    ];
+
+    return {
+      summaryForGemini: {
+        horizonMonths: forecast.horizonMonths,
+        baseline: {
+          totalProjectedRevenue: forecast.scenarios.baseline.totalProjectedRevenue,
+          totalProjectedCost: forecast.scenarios.baseline.totalProjectedCost,
+          totalProjectedGrossProfit: forecast.scenarios.baseline.totalProjectedGrossProfit,
+          averageProjectedMarginPercentage: forecast.scenarios.baseline.averageProjectedMarginPercentage,
+        },
+        conservative: {
+          totalProjectedRevenue: forecast.scenarios.conservative.totalProjectedRevenue,
+          totalProjectedCost: forecast.scenarios.conservative.totalProjectedCost,
+          totalProjectedGrossProfit: forecast.scenarios.conservative.totalProjectedGrossProfit,
+          averageProjectedMarginPercentage: forecast.scenarios.conservative.averageProjectedMarginPercentage,
+        },
+        optimistic: {
+          totalProjectedRevenue: forecast.scenarios.optimistic.totalProjectedRevenue,
+          totalProjectedCost: forecast.scenarios.optimistic.totalProjectedCost,
+          totalProjectedGrossProfit: forecast.scenarios.optimistic.totalProjectedGrossProfit,
+          averageProjectedMarginPercentage: forecast.scenarios.optimistic.averageProjectedMarginPercentage,
+        },
+        points: forecast.scenarios.baseline.forecastPoints.map((p) => ({
+          date: p.date,
+          monthLabel: p.monthLabel,
+          projectedRevenue: p.projectedRevenue,
+          projectedCost: p.projectedIngredientCost,
+          projectedProfit: p.projectedGrossProfit,
+          marginPct: p.projectedGrossMarginPercentage,
+          confidenceInterval: p.confidenceInterval,
+        })),
+        assumptions: forecast.assumptions,
+      },
+      authoritativeFacts: facts,
+      completeness: {
+        isComplete: true,
+        totalItemsAvailable: horizon,
+        itemsReturned: horizon,
+        note: `Deterministic OLS profit forecast for ${horizon} months`,
+      },
+    };
+  },
+};
+
+/**
+ * Tool 9: getRecommendedCombos
+ */
+const getRecommendedCombosHandler = {
+  name: "getRecommendedCombos" as const,
+  description: "Generates strategic combo bundles and solves linear programming mix optimization subject to kitchen plate capacity.",
+  schema: GetRecommendedCombosSchema,
+  execute: (args: GetRecommendedCombosArgs, ctx: ToolExecutionContext): ToolExecutionOutput => {
+    const discount = args.bundleDiscountPercentage ?? 10;
+    const capacity = args.monthlyPlateCapacity ?? 1500;
+
+    const dishProfitability = calculateDishProfitability(
+      ctx.dataset.sales,
+      ctx.dataset.recipes,
+      ctx.dataset.ingredientPrices
+    );
+    const menuEngineering = calculateMenuEngineering(
+      ctx.dataset.sales,
+      ctx.dataset.recipes,
+      ctx.dataset.ingredientPrices
+    );
+
+    const candidates = generateComboCandidates(menuEngineering, dishProfitability, discount);
+    const result = solveComboOptimization(
+      candidates,
+      {
+        monthlyPlateCapacity: capacity,
+        bundleDiscountPercentage: discount,
+        optimizationGoal: "MAXIMIZE_CONTRIBUTION",
+      },
+      dishProfitability
+    );
+
+    const facts: AuthoritativeFact[] = [
+      createAuthoritativeFact({
+        id: "combo-monthly-objective-value",
+        entityType: "menu",
+        entityId: "combo-portfolio",
+        entityName: "Combo Portfolio",
+        metric: "monthlyContribution",
+        label: "Optimal Monthly Combo Contribution",
+        rawValue: result.objectiveValue,
+        unit: "INR",
+        sourceTool: "getRecommendedCombos",
+        datasetMode: ctx.datasetMode,
+      }),
+      createAuthoritativeFact({
+        id: "combo-total-plates-sold",
+        entityType: "menu",
+        entityId: "combo-portfolio",
+        entityName: "Combo Portfolio",
+        metric: "totalSalesVolume",
+        label: "Total Optimized Combo Plates",
+        rawValue: result.totalComboPlatesSold,
+        unit: "servings",
+        sourceTool: "getRecommendedCombos",
+        datasetMode: ctx.datasetMode,
+      }),
+      createAuthoritativeFact({
+        id: "combo-average-margin-percentage",
+        entityType: "menu",
+        entityId: "combo-portfolio",
+        entityName: "Combo Portfolio",
+        metric: "overallMarginPercentage",
+        label: "Average Combo Portfolio Margin",
+        rawValue: result.averageComboMarginPercentage,
+        unit: "%",
+        sourceTool: "getRecommendedCombos",
+        datasetMode: ctx.datasetMode,
+      }),
+    ];
+
+    return {
+      summaryForGemini: {
+        isFeasible: result.isFeasible,
+        monthlyPlateBudget: result.monthlyPlateBudget,
+        totalComboPlatesSold: result.totalComboPlatesSold,
+        optimalMonthlyContribution: result.objectiveValue,
+        averageComboMarginPercentage: result.averageComboMarginPercentage,
+        combos: result.combos.map((c) => ({
+          comboName: c.comboName,
+          comboType: c.comboType,
+          comboSellingPrice: c.comboSellingPrice,
+          totalIngredientCost: c.totalIngredientCost,
+          comboContribution: c.comboContribution,
+          comboMarginPercentage: c.comboMarginPercentage,
+          savingsForGuest: c.savingsForGuest,
+          recommendedMonthlyUnits: c.recommendedMonthlyUnits,
+          projectedMonthlyContribution: c.projectedMonthlyContribution,
+          rationale: c.rationale,
+          dishes: c.dishes.map((d) => `${d.dishName} (${d.category})`),
+        })),
+        disclaimer: result.disclaimer,
+      },
+      authoritativeFacts: facts,
+      completeness: {
+        isComplete: true,
+        totalItemsAvailable: result.combos.length,
+        itemsReturned: result.combos.length,
+        note: "LP-optimized menu combo bundle recommendations",
+      },
+    };
+  },
+};
+
+/**
+ * Immutable Typed Tool Registry containing the 9 approved deterministic financial tools.
  * Zero `any` types; all handlers enforce their respective Zod parameter schemas.
  */
 export const toolRegistry: ToolRegistry = {
@@ -801,6 +1040,8 @@ export const toolRegistry: ToolRegistry = {
   getRecipeCostBreakdown: getRecipeCostBreakdownHandler,
   getRecipeReplayHistory: getRecipeReplayHistoryHandler,
   simulateMenuSurgeryScenario: simulateMenuSurgeryScenarioHandler,
+  getProfitForecast: getProfitForecastHandler,
+  getRecommendedCombos: getRecommendedCombosHandler,
 };
 
 /**
@@ -842,6 +1083,14 @@ export function executeToolByName(
     case "simulateMenuSurgeryScenario": {
       const args = SimulateMenuSurgerySchema.parse(rawArgs);
       return toolRegistry.simulateMenuSurgeryScenario.execute(args, ctx);
+    }
+    case "getProfitForecast": {
+      const args = GetProfitForecastSchema.parse(rawArgs);
+      return toolRegistry.getProfitForecast.execute(args, ctx);
+    }
+    case "getRecommendedCombos": {
+      const args = GetRecommendedCombosSchema.parse(rawArgs);
+      return toolRegistry.getRecommendedCombos.execute(args, ctx);
     }
     default:
       throw new Error(`Security Violation: Tool '${rawName}' is not in the approved allowlist.`);

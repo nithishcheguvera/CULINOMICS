@@ -8,6 +8,9 @@ import {
   MenuMatrixSection,
   DishProfitabilitySection,
   RecipeReplaySection,
+  ProfitForecastSection,
+  ComboOptimizerSection,
+  ReportExportSection,
 } from "@/components/dashboard";
 import { SmartImportSection } from "@/components/import";
 import { MenuSurgerySection } from "@/components/simulator";
@@ -27,6 +30,27 @@ export default function HomePage() {
           {activeTab === "import" && (
             <div id="smart-import" className="scroll-mt-24">
               <SmartImportSection />
+            </div>
+          )}
+
+          {/* Profit Forecast (Stage 10) */}
+          {(activeTab === "all" || activeTab === "forecast") && (
+            <div id="profit-forecast" className="scroll-mt-24">
+              <ProfitForecastSection />
+            </div>
+          )}
+
+          {/* Combo Optimizer (Stage 10) */}
+          {(activeTab === "all" || activeTab === "optimizer") && (
+            <div id="combo-optimizer" className="scroll-mt-24">
+              <ComboOptimizerSection />
+            </div>
+          )}
+
+          {/* Executive Report & Export (Stage 10) */}
+          {(activeTab === "all" || activeTab === "report") && (
+            <div id="executive-report" className="scroll-mt-24">
+              <ReportExportSection />
             </div>
           )}
 

@@ -112,4 +112,36 @@ export const GEMINI_FUNCTION_DECLARATIONS: FunctionDeclaration[] = [
       required: ["dishId", "targetSellingPrice", "targetIngredientCost", "targetMonthlyVolume"],
     },
   },
+  {
+    name: "getProfitForecast",
+    description:
+      "Calculates deterministic OLS profit forecast over 3 or 6 month horizon with baseline, conservative, and optimistic scenarios.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        horizonMonths: {
+          type: Type.INTEGER,
+          description: "Forecast horizon: 3 or 6 months (defaults to 3)",
+        },
+      },
+    },
+  },
+  {
+    name: "getRecommendedCombos",
+    description:
+      "Generates strategic menu combos and solves linear programming product mix optimization subject to kitchen plate capacity.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        bundleDiscountPercentage: {
+          type: Type.NUMBER,
+          description: "Bundle discount percentage between 0 and 50 (defaults to 10)",
+        },
+        monthlyPlateCapacity: {
+          type: Type.NUMBER,
+          description: "Maximum kitchen combo plates per month (defaults to 1500)",
+        },
+      },
+    },
+  },
 ];

@@ -10,6 +10,8 @@ import {
   GetRecipeCostBreakdownArgs,
   GetRecipeReplayHistoryArgs,
   SimulateMenuSurgeryArgs,
+  GetProfitForecastArgs,
+  GetRecommendedCombosArgs,
 } from "./schemas";
 
 export interface ToolExecutionContext {
@@ -47,6 +49,8 @@ export interface ToolRegistry {
   readonly getRecipeCostBreakdown: TypedToolHandler<GetRecipeCostBreakdownArgs>;
   readonly getRecipeReplayHistory: TypedToolHandler<GetRecipeReplayHistoryArgs>;
   readonly simulateMenuSurgeryScenario: TypedToolHandler<SimulateMenuSurgeryArgs>;
+  readonly getProfitForecast: TypedToolHandler<GetProfitForecastArgs>;
+  readonly getRecommendedCombos: TypedToolHandler<GetRecommendedCombosArgs>;
 }
 
 export const TOOL_SAFETY_LIMITS = {

@@ -329,6 +329,43 @@ describe("AI Tools - Typed Dispatcher & Engine Execution", () => {
     expect(simContribFact?.rawNumericValue).toBeGreaterThan(0);
   });
 
+  it("executes getProfitForecast and returns verified deterministic projection facts", () => {
+    const result = executeToolByName(
+      "getProfitForecast",
+      { horizonMonths: 3 },
+      validContext
+    );
+
+    expect(result.completeness.isComplete).toBe(true);
+    const revFact = result.authoritativeFacts.find((f) => f.metric === "projectedRevenue");
+    const profitFact = result.authoritativeFacts.find((f) => f.metric === "projectedGrossProfit");
+    const marginFact = result.authoritativeFacts.find((f) => f.metric === "overallMarginPercentage");
+
+    expect(revFact).toBeDefined();
+    expect(revFact?.rawNumericValue).toBeGreaterThan(0);
+    expect(profitFact).toBeDefined();
+    expect(profitFact?.rawNumericValue).toBeGreaterThan(0);
+    expect(marginFact).toBeDefined();
+    expect(marginFact?.rawNumericValue).toBeGreaterThan(0);
+  });
+
+  it("executes getRecommendedCombos and returns solved LP mix facts", () => {
+    const result = executeToolByName(
+      "getRecommendedCombos",
+      { bundleDiscountPercentage: 10, monthlyPlateCapacity: 1500 },
+      validContext
+    );
+
+    expect(result.completeness.isComplete).toBe(true);
+    const objFact = result.authoritativeFacts.find((f) => f.metric === "monthlyContribution");
+    const platesFact = result.authoritativeFacts.find((f) => f.metric === "totalSalesVolume");
+
+    expect(objFact).toBeDefined();
+    expect(objFact?.rawNumericValue).toBeGreaterThan(0);
+    expect(platesFact).toBeDefined();
+    expect(platesFact?.rawNumericValue).toBeLessThanOrEqual(1500);
+  });
+
   it("strictly rejects unapproved tool names to prevent arbitrary function execution", () => {
     expect(() =>
       executeToolByName("execArbitraryShellCode", {}, validContext)
