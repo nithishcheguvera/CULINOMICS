@@ -124,7 +124,13 @@ export async function POST(req: NextRequest) {
     // 4. Missing API Key -> Deterministic Fallback Mode
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      const fallback = generateDeterministicFallbackResponse(body.message, ctx, body.selectedDishId);
+      const fallback = generateDeterministicFallbackResponse(
+        body.message,
+        ctx,
+        body.selectedDishId,
+        body.selectedTimelineDate,
+        body.activeScenario
+      );
       return NextResponse.json({
         success: true,
         assistantMessage: fallback.assistantMessage,
@@ -150,11 +156,25 @@ export async function POST(req: NextRequest) {
         }
       }
 
+      const contextLines: string[] = [];
+      if (body.selectedDishId) {
+        contextLines.push(`Active Selected Dish: ${body.selectedDishId}`);
+      }
+      if (body.selectedTimelineDate) {
+        contextLines.push(`Active Timeline Date: ${body.selectedTimelineDate}`);
+      }
+      if (body.activeScenario) {
+        contextLines.push(
+          `Active Menu Surgery Scenario: Dish ${body.activeScenario.dishId}, Target Price: ₹${body.activeScenario.targetSellingPrice}, Target Cost: ₹${body.activeScenario.targetIngredientCost}, Target Volume: ${body.activeScenario.targetMonthlyVolume} units/mo`
+        );
+      }
+      const contextPrefix = contextLines.length > 0 ? `[ACTIVE COCKPIT CONTEXT]\n${contextLines.join("\n")}\n\n` : "";
+
       contents.push({
         role: "user",
         parts: [
           {
-            text: `User Query: ${body.message}${body.selectedDishId ? `\nActive Selected Dish: ${body.selectedDishId}` : ""}`,
+            text: `${contextPrefix}User Query: ${body.message}`,
           },
         ],
       });
@@ -269,7 +289,13 @@ export async function POST(req: NextRequest) {
       });
     } catch {
       // Safe fallback on Gemini API error or timeout
-      const fallback = generateDeterministicFallbackResponse(body.message, ctx, body.selectedDishId);
+      const fallback = generateDeterministicFallbackResponse(
+        body.message,
+        ctx,
+        body.selectedDishId,
+        body.selectedTimelineDate,
+        body.activeScenario
+      );
       return NextResponse.json({
         success: true,
         assistantMessage: fallback.assistantMessage,

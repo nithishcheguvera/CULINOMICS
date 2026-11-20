@@ -8,6 +8,7 @@ import { MonthlyKpiCards } from "./MonthlyKpiCards";
 import { DishInspectorCard } from "./DishInspectorCard";
 import { CompactRecipeReplay } from "./CompactRecipeReplay";
 import { CompactMenuSurgery } from "./CompactMenuSurgery";
+import { CockpitAiCopilot } from "./CockpitAiCopilot";
 import { ScenePlaceholder } from "@/three/ScenePlaceholder";
 
 // Client-side dynamic import of 3D Scene Explorer with SSR disabled
@@ -160,6 +161,11 @@ export function CockpitShell({ children }: CockpitShellProps) {
             {/* Phase 3C: Compact Menu Surgery Cockpit Lab */}
             {(activeTab === "all" || activeTab === "matrix" || activeTab === "explorer3d" || activeTab === "simulator") && (
               <CompactMenuSurgery />
+            )}
+
+            {/* Phase 3D: Context-Aware AI Copilot Terminal */}
+            {(activeTab === "all" || activeTab === "matrix" || activeTab === "explorer3d" || activeTab === "simulator") && (
+              <CockpitAiCopilot />
             )}
 
             {/* Sub-Views / Secondary Section Panels based on Tab Navigation */}

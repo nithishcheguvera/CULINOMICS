@@ -286,7 +286,15 @@ export const useAppStore = create<AppState>((set, get) => ({
     }));
 
     try {
-      const { dataset, datasetMode, selectedDishId, assistantMessages } = get();
+      const {
+        dataset,
+        datasetMode,
+        selectedDishId,
+        selectedTimelineDate,
+        activeScenario,
+        timelineDates,
+        assistantMessages,
+      } = get();
 
       // Recent history (up to 6 turns)
       const recentHistory = assistantMessages.slice(-6).map((m) => ({
@@ -299,7 +307,17 @@ export const useAppStore = create<AppState>((set, get) => ({
         datasetMode,
         history: recentHistory,
         selectedDishId,
+        selectedTimelineDate: selectedTimelineDate || timelineDates[timelineDates.length - 1],
       };
+
+      if (activeScenario) {
+        payload.activeScenario = {
+          dishId: activeScenario.dishId,
+          targetSellingPrice: activeScenario.targetSellingPrice,
+          targetIngredientCost: activeScenario.targetIngredientCost,
+          targetMonthlyVolume: activeScenario.targetMonthlyVolume,
+        };
+      }
 
       if (datasetMode === "custom" && dataset) {
         payload.customDataset = dataset;

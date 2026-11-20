@@ -28,7 +28,14 @@ export interface DeterministicFallbackResult {
 export function generateDeterministicFallbackResponse(
   query: string,
   ctx: ToolExecutionContext,
-  selectedDishId?: string
+  selectedDishId?: string,
+  selectedTimelineDate?: string,
+  activeScenario?: {
+    dishId: string;
+    targetSellingPrice: number;
+    targetIngredientCost: number;
+    targetMonthlyVolume: number;
+  }
 ): DeterministicFallbackResult {
   const q = query.toLowerCase().trim();
   const menu = ctx.dataset.menu;
@@ -44,11 +51,75 @@ export function generateDeterministicFallbackResponse(
     }
   }
 
+  // Route B: Menu Surgery & Scenario Simulation
+  if (
+    q.includes("simulate") ||
+    q.includes("surgery") ||
+    q.includes("scenario") ||
+    q.includes("what if") ||
+    q.includes("price change") ||
+    (activeScenario && (q.includes("simulated") || q.includes("impact") || q.includes("projection")))
+  ) {
+    const dishToSimulateId = activeScenario?.dishId || targetDishId || "truffle-tenderloin";
+    const sampleDish = menu.find((m) => m.id === dishToSimulateId) || menu[0];
+    const simulatedPrice = activeScenario ? activeScenario.targetSellingPrice : Math.round(sampleDish.basePrice * 1.15);
+    const simulatedCost = activeScenario ? activeScenario.targetIngredientCost : 450;
+    const simulatedVolume = activeScenario ? activeScenario.targetMonthlyVolume : 200;
+
+    const simOutput = executeToolByName(
+      "simulateMenuSurgeryScenario",
+      {
+        dishId: sampleDish.id,
+        targetSellingPrice: simulatedPrice,
+        targetIngredientCost: simulatedCost,
+        targetMonthlyVolume: simulatedVolume,
+      },
+      ctx
+    );
+
+    const facts = simOutput.authoritativeFacts;
+    const simContrib = facts.find((f) => f.metric === "monthlyContribution");
+    const simMargin = facts.find((f) => f.metric === "contributionMarginPercentage");
+    const simRev = facts.find((f) => f.metric === "monthlyRevenue");
+    const deltaContrib = facts.find((f) => f.metric === "monthlyContributionDelta");
+
+    const message = [
+      `[Deterministic Engine Analysis — Offline Fallback Mode]`,
+      `Menu Surgery Simulation for **${sampleDish.name}**:`,
+      `- Simulated Target Selling Price: ₹${simulatedPrice.toLocaleString()}`,
+      `- Simulated Unit Ingredient Cost: ₹${simulatedCost.toLocaleString()}`,
+      `- Simulated Monthly Volume: ${simulatedVolume.toLocaleString()} units`,
+      `- Simulated Monthly Revenue: ${simRev?.formattedValue ?? "N/A"}`,
+      `- Simulated Monthly Contribution: ${simContrib?.formattedValue ?? "N/A"}`,
+      `- Simulated Margin: ${simMargin?.formattedValue ?? "N/A"}`,
+      deltaContrib ? `- Projected Monthly Impact: ${deltaContrib.formattedValue}` : "",
+      `\nRecommendation: Use the interactive Menu Surgery Simulator sliders to model customized volume and price elasticities with real-time 3D feedback.`,
+    ].filter(Boolean).join("\n");
+
+    const action: VisualizationAction = {
+      actionType: "SET_ACTIVE_TAB",
+      tab: "simulator",
+      dishId: sampleDish.id,
+      label: `Open Simulator for ${sampleDish.name}`,
+    };
+
+    return {
+      assistantMessage: message,
+      authoritativeFacts: facts,
+      visualizationAction: action,
+      completeness: simOutput.completeness,
+    };
+  }
+
   // Route A: Dish-specific Inquiry
   if (targetDishId && (q.includes("dish") || q.includes("profit") || q.includes("cost") || q.includes("margin") || q.includes("truffle") || q.includes("tenderloin") || q.includes("pizza") || q.includes("salmon") || q.includes("steak") || selectedDishId)) {
     const targetDish = menu.find((m) => m.id === targetDishId) || menu[0];
     const dishOutput = executeToolByName("getDishProfitability", { dishId: targetDish.id }, ctx);
-    const breakdownOutput = executeToolByName("getRecipeCostBreakdown", { dishId: targetDish.id }, ctx);
+    const breakdownArgs: { dishId: string; date?: string } = { dishId: targetDish.id };
+    if (selectedTimelineDate && /^\d{4}-\d{2}-\d{2}$/.test(selectedTimelineDate)) {
+      breakdownArgs.date = selectedTimelineDate;
+    }
+    const breakdownOutput = executeToolByName("getRecipeCostBreakdown", breakdownArgs, ctx);
 
     const facts: AuthoritativeFact[] = [
       ...dishOutput.authoritativeFacts,
@@ -64,7 +135,7 @@ export function generateDeterministicFallbackResponse(
 
     const message = [
       `[Deterministic Engine Analysis — Offline Fallback Mode]`,
-      `Verified performance for **${targetDish.name}**:`,
+      `Verified performance for **${targetDish.name}**${selectedTimelineDate ? ` (Timeline: ${selectedTimelineDate})` : ""}:`,
       `- Current Selling Price: ${priceFact?.formattedValue ?? "N/A"}`,
       `- Direct Ingredient Cost: ${costFact?.formattedValue ?? "N/A"} per serving`,
       `- Unit Contribution: ${contribFact?.formattedValue ?? "N/A"} per serving (${marginFact?.formattedValue ?? "N/A"} margin)`,
@@ -92,56 +163,6 @@ export function generateDeterministicFallbackResponse(
         itemsReturned: facts.length,
         note: `Deterministic analysis for dish ${targetDish.name}`,
       },
-    };
-  }
-
-  // Route B: Menu Surgery & Scenario Simulation
-  if (
-    q.includes("simulate") ||
-    q.includes("surgery") ||
-    q.includes("scenario") ||
-    q.includes("what if") ||
-    q.includes("price change")
-  ) {
-    const sampleDish = menu.find((m) => m.id === "truffle-tenderloin") || menu[0];
-    const simulatedPrice = Math.round(sampleDish.basePrice * 1.15); // +15% price adjustment
-
-    const simOutput = executeToolByName(
-      "simulateMenuSurgeryScenario",
-      {
-        dishId: sampleDish.id,
-        targetSellingPrice: simulatedPrice,
-        targetIngredientCost: 450,
-        targetMonthlyVolume: 200,
-      },
-      ctx
-    );
-
-    const facts = simOutput.authoritativeFacts;
-    const simContrib = facts.find((f) => f.metric === "monthlyContribution");
-    const simMargin = facts.find((f) => f.metric === "contributionMarginPercentage");
-
-    const message = [
-      `[Deterministic Engine Analysis — Offline Fallback Mode]`,
-      `Menu Surgery Simulation for **${sampleDish.name}**:`,
-      `- Simulated Target Selling Price: ₹${simulatedPrice.toLocaleString()}`,
-      `- Simulated Monthly Contribution: ${simContrib?.formattedValue ?? "N/A"}`,
-      `- Simulated Margin: ${simMargin?.formattedValue ?? "N/A"}`,
-      `\nRecommendation: Use the interactive Menu Surgery Simulator sliders to model customized volume and price elasticities with real-time 3D feedback.`,
-    ].join("\n");
-
-    const action: VisualizationAction = {
-      actionType: "SET_ACTIVE_TAB",
-      tab: "simulator",
-      dishId: sampleDish.id,
-      label: `Open Simulator for ${sampleDish.name}`,
-    };
-
-    return {
-      assistantMessage: message,
-      authoritativeFacts: facts,
-      visualizationAction: action,
-      completeness: simOutput.completeness,
     };
   }
 

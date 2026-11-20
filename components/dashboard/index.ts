@@ -4,6 +4,7 @@ export * from "./MonthlyKpiCards";
 export * from "./DishInspectorCard";
 export * from "./CompactRecipeReplay";
 export * from "./CompactMenuSurgery";
+export * from "./CockpitAiCopilot";
 export * from "./KpiCards";
 export * from "./FinancialOverviewSection";
 export * from "./MenuMatrixSection";

@@ -15,6 +15,15 @@ export const AssistantRequestSchema = z.object({
     .max(10, "Conversation history cannot exceed 10 turns")
     .optional(),
   selectedDishId: z.string().trim().min(1).max(64).optional(),
+  selectedTimelineDate: z.string().trim().optional(),
+  activeScenario: z
+    .object({
+      dishId: z.string().trim().min(1).max(64),
+      targetSellingPrice: z.number().nonnegative(),
+      targetIngredientCost: z.number().nonnegative(),
+      targetMonthlyVolume: z.number().int().nonnegative(),
+    })
+    .optional(),
 });
 
 export type AssistantRequestBody = z.infer<typeof AssistantRequestSchema>;
