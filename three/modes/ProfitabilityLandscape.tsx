@@ -88,7 +88,13 @@ function DishColumn({ dish, position, height, isSelected, onSelect }: DishColumn
 }
 
 export function ProfitabilityLandscape() {
-  const { menuEngineering, selectedDishId, setSelectedDishId } = useAppStore();
+  const {
+    menuEngineering,
+    selectedDishId,
+    setSelectedDishId,
+    activeScenario,
+    scenarioResult,
+  } = useAppStore();
 
   if (!menuEngineering || menuEngineering.dishes.length === 0) {
     return null;
@@ -110,6 +116,30 @@ export function ProfitabilityLandscape() {
     ...dishes.map((d) => d.totalContribution),
     1
   );
+
+  const hasActiveSim =
+    scenarioResult &&
+    activeScenario &&
+    activeScenario.dishId === selectedDishId &&
+    (activeScenario.targetSellingPrice !== scenarioResult.baseline.sellingPrice ||
+      Math.abs(activeScenario.targetIngredientCost - scenarioResult.baseline.unitIngredientCost) > 0.01 ||
+      activeScenario.targetMonthlyVolume !== Math.round(scenarioResult.baseline.monthlyVolume));
+
+  const simXOffset = hasActiveSim
+    ? ((scenarioResult.simulated.monthlyVolume - popularityThreshold) / maxVolDiff) * 4.2
+    : 0;
+  const simZOffset = hasActiveSim
+    ? ((scenarioResult.simulated.contributionPerServing - profitabilityThreshold) / maxProfDiff) * 4.2
+    : 0;
+  const simAnnualContrib = hasActiveSim
+    ? scenarioResult.simulated.monthlyContribution * 12
+    : 0;
+  const simNormalizedHeight = hasActiveSim
+    ? Math.max(0.6, (simAnnualContrib / maxContribution) * 3.2)
+    : 0.6;
+  const projCat = hasActiveSim ? scenarioResult.matrixProjection.projectedCategory : "STAR";
+  const projColor = CATEGORY_COLORS[projCat] || "#10b981";
+  const deltaContrib = hasActiveSim ? scenarioResult.delta.contributionPerServing : 0;
 
   return (
     <group>
@@ -154,6 +184,52 @@ export function ProfitabilityLandscape() {
           />
         );
       })}
+
+      {/* 3D Holographic Simulated Ghost Column for Active Scenario */}
+      {hasActiveSim && (
+        <group position={[simXOffset, 0, simZOffset]}>
+          {/* Holographic Glowing Ghost Column Mesh */}
+          <mesh position={[0, simNormalizedHeight / 2, 0]}>
+            <boxGeometry args={[0.76, simNormalizedHeight, 0.76]} />
+            <meshStandardMaterial
+              color={projColor}
+              transparent
+              opacity={0.65}
+              roughness={0.1}
+              metalness={0.4}
+              emissive={projColor}
+              emissiveIntensity={0.8}
+            />
+          </mesh>
+
+          {/* Wireframe Outline */}
+          <mesh position={[0, simNormalizedHeight / 2, 0]}>
+            <boxGeometry args={[0.78, simNormalizedHeight + 0.02, 0.78]} />
+            <meshBasicMaterial color="#ffffff" wireframe transparent opacity={0.4} />
+          </mesh>
+
+          {/* Top Holographic Halo */}
+          <mesh position={[0, simNormalizedHeight + 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[0.88, 0.88]} />
+            <meshBasicMaterial color={projColor} opacity={0.9} transparent />
+          </mesh>
+
+          {/* Ground Footprint Ring */}
+          <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[0.9, 0.9]} />
+            <meshBasicMaterial color="#10b981" opacity={0.6} transparent />
+          </mesh>
+
+          {/* Simulated Projection Billboard */}
+          <DataBillboard
+            position={[0, simNormalizedHeight + 0.85, 0]}
+            title={`${scenarioResult.dishName} (Simulated)`}
+            subtitle={`Vol: ${scenarioResult.simulated.monthlyVolume} • Contrib: ${formatINR(scenarioResult.simulated.contributionPerServing, { showDecimals: true })} (${deltaContrib >= 0 ? "+" : ""}${formatINR(deltaContrib, { showDecimals: true })})`}
+            badge={`Projected: ${projCat}`}
+            color="#10b981"
+          />
+        </group>
+      )}
     </group>
   );
 }

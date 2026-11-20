@@ -7,6 +7,7 @@ import { AssistantTriggerButton, AssistantDrawer } from "@/components/assistant"
 import { MonthlyKpiCards } from "./MonthlyKpiCards";
 import { DishInspectorCard } from "./DishInspectorCard";
 import { CompactRecipeReplay } from "./CompactRecipeReplay";
+import { CompactMenuSurgery } from "./CompactMenuSurgery";
 import { ScenePlaceholder } from "@/three/ScenePlaceholder";
 
 // Client-side dynamic import of 3D Scene Explorer with SSR disabled
@@ -154,6 +155,11 @@ export function CockpitShell({ children }: CockpitShellProps) {
             {/* Phase 3B: Compact Recipe Replay Time Intelligence Runway */}
             {(activeTab === "all" || activeTab === "matrix" || activeTab === "explorer3d") && (
               <CompactRecipeReplay />
+            )}
+
+            {/* Phase 3C: Compact Menu Surgery Cockpit Lab */}
+            {(activeTab === "all" || activeTab === "matrix" || activeTab === "explorer3d" || activeTab === "simulator") && (
+              <CompactMenuSurgery />
             )}
 
             {/* Sub-Views / Secondary Section Panels based on Tab Navigation */}
