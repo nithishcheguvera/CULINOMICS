@@ -49,9 +49,9 @@ export function SharedEnvironment({ gridSize = 22 }: SharedEnvironmentProps) {
         <meshStandardMaterial color="#08140F" roughness={0.92} metalness={0.08} />
       </mesh>
 
-      {/* Precision Grid Reference: Emerald & Forest Muted Gridlines */}
+      {/* Precision Grid Reference: Glowing Emerald & Forest Gridlines */}
       <gridHelper
-        args={[gridSize, gridSize, "#1C362A", "#0E231B"]}
+        args={[gridSize, gridSize, "#22c55e", "#14532d"]}
         position={[0, 0.001, 0]}
       />
     </>

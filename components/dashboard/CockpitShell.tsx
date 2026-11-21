@@ -69,7 +69,7 @@ export function CockpitShell({ children }: CockpitShellProps) {
             </div>
 
             {/* Currency, Dataset Badge, Guide & Assistant Trigger */}
-            <div className="flex items-center space-x-2.5">
+            <div className="flex items-center space-x-2 sm:space-x-2.5">
               <div className="hidden sm:flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-forest-elevated border border-forest-border text-xs font-mono text-neutral-300">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span>Currency: <strong className="text-white">INR (₹)</strong></span>
@@ -79,6 +79,19 @@ export function CockpitShell({ children }: CockpitShellProps) {
               </div>
               <GuideMenuPopover />
               <AssistantTriggerButton />
+              {/* Screen Record 2 Header Sign Out Action */}
+              <button
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    sessionStorage.removeItem("culinomics_video_intro_seen");
+                    useAppStore.getState().replayVideoIntro();
+                  }
+                }}
+                className="px-3.5 py-1 rounded-full bg-forest-elevated hover:bg-forest-border border border-neutral-700/80 text-xs font-semibold text-neutral-200 transition-all cursor-pointer shadow-sm hover:text-white"
+                title="Restart intro experience"
+              >
+                Sign out
+              </button>
             </div>
           </div>
 
@@ -132,49 +145,159 @@ export function CockpitShell({ children }: CockpitShellProps) {
             {/* Phase B: Monthly Runway KPI Cards */}
             <MonthlyKpiCards />
 
-            {/* Phase C: 62% / 38% Desktop Cockpit Grid (Visible on Overview & Matrix) */}
+            {/* Phase C: 62% / 38% Desktop Cockpit Grid (Screen Record 2 Layout) */}
             {(activeTab === "all" || activeTab === "matrix" || activeTab === "explorer3d") && (
               <div className="grid grid-cols-12 gap-4 lg:gap-5 items-stretch">
-                {/* Left Stage (62% width on desktop): 3D Scene Explorer */}
-                <div id="scene-stage-container" className="col-span-12 lg:col-span-7 xl:col-span-8 forest-card rounded-2xl p-4 border border-forest-border flex flex-col justify-between">
+                {/* Left Stage (62% width on desktop): 3D Scene Explorer (Profit Terrain) */}
+                <div id="scene-stage-container" className="col-span-12 lg:col-span-7 xl:col-span-8 forest-card rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-emerald-500/20 bg-gradient-to-b from-[#0c1f15] to-[#06120c] flex flex-col justify-between shadow-xl shadow-black/50">
+                  {/* Top Header of Profit Terrain (Screen Record 2) */}
                   <div className="flex items-center justify-between pb-3 border-b border-forest-border/60 mb-3 select-none">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm">🧊</span>
-                      <h2 className="text-xs sm:text-sm font-bold tracking-tight text-white uppercase">
-                        3D Profit Intelligence Stage
+                    <div>
+                      <h2 className="text-base sm:text-xl font-black tracking-tight text-white">
+                        Profit Terrain
                       </h2>
+                      <span className="text-[10px] text-neutral-400 font-mono hidden sm:inline">
+                        3D Kasavana &amp; Smith Landscape
+                      </span>
                     </div>
-                    <span className="text-[11px] font-mono text-neutral-400">
-                      R3F WebGL • 6 Modes
-                    </span>
+
+                    <div className="flex flex-col items-end gap-1">
+                      <div className="flex items-center bg-black/60 p-1 rounded-full border border-neutral-700/80 text-xs">
+                        <button
+                          type="button"
+                          onClick={() => useAppStore.getState().setThreeMode("profitability-landscape")}
+                          className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                            useAppStore.getState().threeMode === "profitability-landscape"
+                              ? "bg-amber-400 text-neutral-950 shadow-md"
+                              : "text-neutral-400 hover:text-white"
+                          }`}
+                        >
+                          Field
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => useAppStore.getState().setThreeMode("recipe-replay")}
+                          className={`px-3 py-1 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                            useAppStore.getState().threeMode === "recipe-replay"
+                              ? "bg-amber-400 text-neutral-950 font-bold shadow-md"
+                              : "text-neutral-400 hover:text-white"
+                          }`}
+                        >
+                          Time
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => useAppStore.getState().setThreeMode("margin-breakdown")}
+                          className={`px-3 py-1 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                            useAppStore.getState().threeMode === "margin-breakdown"
+                              ? "bg-amber-400 text-neutral-950 font-bold shadow-md"
+                              : "text-neutral-400 hover:text-white"
+                          }`}
+                        >
+                          Breakdown
+                        </button>
+                      </div>
+                      <span className="text-[10px] text-neutral-400 font-mono">
+                        Drag to orbit · click a dish
+                      </span>
+                    </div>
                   </div>
 
                   {/* 3D Scene Explorer Component */}
-                  <div className="flex-1 w-full rounded-xl relative">
+                  <div className="flex-1 w-full rounded-2xl relative min-h-[350px]">
                     <SceneExplorer />
+                  </div>
+
+                  {/* Stage Bottom: Quadrant Filter Badges & Timeline Slider (Screen Record 2) */}
+                  <div className="mt-3 pt-3 border-t border-forest-border/60 flex flex-col gap-2.5">
+                    {/* Quadrant Badges */}
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold border border-amber-500/70 text-amber-300 bg-amber-950/40">
+                        Star
+                      </span>
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold border border-lime-500/70 text-lime-300 bg-lime-950/40">
+                        Plowhorse
+                      </span>
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold border border-sky-500/70 text-sky-300 bg-sky-950/40">
+                        Puzzle
+                      </span>
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold border border-red-500/70 text-red-300 bg-red-950/40">
+                        Dog
+                      </span>
+                    </div>
+
+                    {/* Timeline Runway Scrubber Bar */}
+                    <div className="flex items-center gap-3 bg-black/50 px-3 py-2 rounded-xl border border-forest-border/50">
+                      <button
+                        type="button"
+                        onClick={useAppStore.getState().togglePlay}
+                        className="w-8 h-8 rounded-full bg-amber-400 hover:bg-amber-300 text-neutral-950 font-black flex items-center justify-center text-xs shadow-md shadow-amber-950/50 cursor-pointer transition-transform active:scale-95 shrink-0"
+                        aria-label="Play or pause runway"
+                      >
+                        {useAppStore.getState().isPlaying ? "⏸" : "▶"}
+                      </button>
+
+                      {/* 12-month progress slider track */}
+                      <div className="flex-1 flex items-center justify-between text-[11px] font-mono text-neutral-400 px-1 relative">
+                        <div className="absolute inset-x-0 h-1 bg-lime-950/80 rounded-full">
+                          <div
+                            className="h-full bg-gradient-to-r from-lime-500 to-emerald-400 rounded-full shadow-[0_0_8px_rgba(132,204,22,0.8)]"
+                            style={{
+                              width: `${(Math.max(0, useAppStore.getState().timelineDates.indexOf(useAppStore.getState().selectedTimelineDate || useAppStore.getState().timelineDates[useAppStore.getState().timelineDates.length - 1])) / Math.max(1, useAppStore.getState().timelineDates.length - 1)) * 100}%`,
+                            }}
+                          />
+                        </div>
+                        {useAppStore.getState().timelineDates.map((date, idx) => {
+                          const dates = useAppStore.getState().timelineDates;
+                          const curDate = useAppStore.getState().selectedTimelineDate || dates[dates.length - 1];
+                          const isSel = curDate === date;
+                          const monthShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][idx];
+                          return (
+                            <button
+                              key={date}
+                              type="button"
+                              onClick={() => useAppStore.getState().setSelectedTimelineDate(date)}
+                              className={`z-10 flex flex-col items-center gap-1 transition-all cursor-pointer ${
+                                isSel ? "text-lime-300 font-bold scale-110" : "hover:text-white"
+                              }`}
+                            >
+                              <span
+                                className={`w-2.5 h-2.5 rounded-full transition-all ${
+                                  isSel
+                                    ? "bg-amber-400 shadow-[0_0_8px_#fbbf24] scale-125"
+                                    : "bg-neutral-700 hover:bg-neutral-500"
+                                }`}
+                              />
+                              <span className="text-[10px] hidden sm:inline">{monthShort}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Active Month Label */}
+                      <span className="font-bold font-mono text-sm text-lime-400 shrink-0">
+                        {["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][Math.max(0, useAppStore.getState().timelineDates.indexOf(useAppStore.getState().selectedTimelineDate || useAppStore.getState().timelineDates[useAppStore.getState().timelineDates.length - 1]))]}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Right Stage (38% width on desktop): Live Dish Inspector */}
-                <div className="col-span-12 lg:col-span-5 xl:col-span-4 flex flex-col">
+                {/* Right Stage (38% width on desktop): Live Dish Inspector & AI Copilot */}
+                <div className="col-span-12 lg:col-span-5 xl:col-span-4 flex flex-col space-y-4">
                   <DishInspectorCard />
+                  <CockpitAiCopilot />
                 </div>
               </div>
             )}
 
-            {/* Phase 3B: Compact Recipe Replay Time Intelligence Runway */}
-            {(activeTab === "all" || activeTab === "matrix" || activeTab === "explorer3d") && (
+            {/* Recipe Replay Time Intelligence Runway (Full Width) */}
+            {(activeTab === "all" || activeTab === "matrix" || activeTab === "explorer3d" || activeTab === "replay") && (
               <CompactRecipeReplay />
             )}
 
-            {/* Phase 3C: Compact Menu Surgery Cockpit Lab */}
-            {(activeTab === "all" || activeTab === "matrix" || activeTab === "explorer3d" || activeTab === "simulator") && (
+            {/* Standalone Menu Surgery Cockpit Lab (When in simulator tab) */}
+            {activeTab === "simulator" && (
               <CompactMenuSurgery />
-            )}
-
-            {/* Phase 3D: Context-Aware AI Copilot Terminal */}
-            {(activeTab === "all" || activeTab === "matrix" || activeTab === "explorer3d" || activeTab === "simulator") && (
-              <CockpitAiCopilot />
             )}
 
             {/* Sub-Views / Secondary Section Panels based on Tab Navigation */}

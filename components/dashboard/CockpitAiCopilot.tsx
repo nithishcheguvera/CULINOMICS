@@ -173,8 +173,38 @@ export function CockpitAiCopilot() {
       </div>
 
       {/* Suggested Prompt Chips (Quick Actions) */}
-      <div className="space-y-1.5">
-        <span className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
+      <div className="space-y-2.5">
+        {/* Screen Record 2 Core Action Pills */}
+        <div className="space-y-1.5">
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => handlePromptClick("What dishes are currently sinking in margin, and what is causing the erosion?")}
+              className="px-3.5 py-1 rounded-full bg-forest-elevated hover:bg-forest-border border border-neutral-700/80 text-xs font-semibold text-neutral-200 hover:text-white transition-all cursor-pointer shadow-sm"
+            >
+              What&apos;s sinking?
+            </button>
+            <button
+              type="button"
+              onClick={() => handlePromptClick("Which dish should I promote this month based on margin and volume?")}
+              className="px-3.5 py-1 rounded-full bg-forest-elevated hover:bg-forest-border border border-neutral-700/80 text-xs font-semibold text-neutral-200 hover:text-white transition-all cursor-pointer shadow-sm"
+            >
+              Dish to promote
+            </button>
+            <button
+              type="button"
+              onClick={() => handlePromptClick("How can I fix the Dog category dishes to recover profitability?")}
+              className="px-3.5 py-1 rounded-full bg-forest-elevated hover:bg-forest-border border border-neutral-700/80 text-xs font-semibold text-neutral-200 hover:text-white transition-all cursor-pointer shadow-sm"
+            >
+              Fix the Dog
+            </button>
+          </div>
+          <p className="text-[11px] text-neutral-400 font-medium">
+            Ask me — I only use numbers from the profit engine.
+          </p>
+        </div>
+
+        <span className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider block pt-1">
           Suggested Decision Inquiries:
         </span>
         <div className="flex flex-wrap gap-1.5">

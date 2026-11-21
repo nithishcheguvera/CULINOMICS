@@ -177,12 +177,22 @@ export function CompactRecipeReplay() {
             </span>
           </div>
           <p className="text-xs text-neutral-400">
-            Simulate monthly dish profitability erosion and ingredient price inflation across 2025
+            margin % as ingredient prices rise • Simulate monthly dish profitability erosion across 2025
           </p>
         </div>
 
-        {/* Status Pills: Active Month Beacon & Inflation Surge Badge */}
+        {/* Status Pills: Sinking, Selected, Healthy (Screen Record 2) */}
         <div className="flex items-center flex-wrap gap-2">
+          <span className="px-3 py-1 rounded-full text-xs font-semibold border border-red-500/70 text-red-400 bg-red-950/40">
+            Sinking
+          </span>
+          <span className="px-3 py-1 rounded-full text-xs font-bold border border-amber-400 text-amber-300 bg-amber-950/40">
+            Selected
+          </span>
+          <span className="px-3 py-1 rounded-full text-xs font-semibold border border-emerald-500/70 text-emerald-300 bg-emerald-950/40">
+            Healthy
+          </span>
+
           {/* Active Month Beacon */}
           <div className="px-2.5 py-1 rounded-lg bg-forest-elevated border border-emerald-500/30 text-emerald-300 font-mono text-xs flex items-center space-x-2 shadow-sm">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />

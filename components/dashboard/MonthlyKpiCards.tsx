@@ -78,61 +78,57 @@ export function MonthlyKpiCards() {
       </div>
 
       {/* 4 Monthly KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* 1. Monthly Revenue */}
-        <div className="forest-card p-4 rounded-xl border border-forest-border transition-all hover:border-emerald-500/30">
+        <div className="forest-card rounded-2xl p-4 sm:p-5 border border-emerald-500/20 bg-gradient-to-br from-[#0c1f15] via-[#08180f] to-[#040d07] shadow-lg shadow-black/40 transition-all hover:border-emerald-500/40">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-neutral-400 select-none">Monthly Revenue</span>
-            <span className="text-base select-none">📊</span>
           </div>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-xl sm:text-2xl font-bold font-mono tracking-tight text-white tabular-nums">
+          <div className="mt-1 flex items-baseline justify-between">
+            <span className="text-2xl sm:text-3xl font-black font-sans tracking-tight text-white tabular-nums">
               {formatINR(currentMonth.revenue)}
             </span>
           </div>
-          <div className="mt-2 flex items-center justify-between text-xs">
-            <span className="text-neutral-500 select-none">Volume: 1,920 units</span>
+          <div className="mt-2.5 flex items-center justify-between text-xs">
             <span
-              className={`px-1.5 py-0.5 rounded font-mono font-medium ${
+              className={`px-2.5 py-0.5 rounded-full font-medium text-[11px] inline-flex items-center gap-1 ${
                 isBaseline
-                  ? "bg-forest-elevated text-neutral-300"
+                  ? "bg-emerald-900/60 text-emerald-300 border border-emerald-700/50"
                   : comparison.revenueDeltaPercentage >= 0
-                  ? "bg-emerald-950/60 text-emerald-400 border border-emerald-800/40"
-                  : "bg-red-950/60 text-red-400 border border-red-800/40"
+                  ? "bg-emerald-900/60 text-emerald-300 border border-emerald-700/50"
+                  : "bg-red-950/70 text-red-300 border border-red-800/50"
               }`}
             >
               {isBaseline
-                ? "Baseline"
-                : `${comparison.revenueDeltaPercentage >= 0 ? "+" : ""}${comparison.revenueDeltaPercentage.toFixed(1)}% vs Jan`}
+                ? "steady since Jan (Baseline)"
+                : `${comparison.revenueDeltaPercentage >= 0 ? "▲ +" : "▼ "}${Math.abs(comparison.revenueDeltaPercentage).toFixed(1)}% vs Jan`}
             </span>
           </div>
         </div>
 
         {/* 2. Monthly Ingredient Cost */}
-        <div className="forest-card p-4 rounded-xl border border-forest-border transition-all hover:border-emerald-500/30">
+        <div className="forest-card rounded-2xl p-4 sm:p-5 border border-emerald-500/20 bg-gradient-to-br from-[#0c1f15] via-[#08180f] to-[#040d07] shadow-lg shadow-black/40 transition-all hover:border-emerald-500/40">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-neutral-400 select-none">Ingredient Cost (COGS)</span>
-            <span className="text-base select-none">🥩</span>
           </div>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-xl sm:text-2xl font-bold font-mono tracking-tight text-white tabular-nums">
+          <div className="mt-1 flex items-baseline justify-between">
+            <span className="text-2xl sm:text-3xl font-black font-sans tracking-tight text-white tabular-nums">
               {formatINR(currentMonth.ingredientCost)}
             </span>
           </div>
-          <div className="mt-2 flex items-center justify-between text-xs">
-            <span className="text-neutral-500 select-none">Direct Food Cost</span>
+          <div className="mt-2.5 flex items-center justify-between text-xs">
             <span
-              className={`px-1.5 py-0.5 rounded font-mono font-medium ${
+              className={`px-2.5 py-0.5 rounded-full font-medium text-[11px] inline-flex items-center gap-1 ${
                 isBaseline
-                  ? "bg-forest-elevated text-neutral-300"
+                  ? "bg-forest-elevated text-neutral-300 border border-neutral-700/50"
                   : comparison.isCostSurge
-                  ? "bg-red-950/60 text-red-400 border border-red-800/40"
-                  : "bg-emerald-950/60 text-emerald-400 border border-emerald-800/40"
+                  ? "bg-red-950/70 text-red-300 border border-red-800/50"
+                  : "bg-emerald-900/60 text-emerald-300 border border-emerald-700/50"
               }`}
             >
               {isBaseline
                 ? "Baseline"
-                : `${comparison.costDeltaPercentage >= 0 ? "+" : ""}${comparison.costDeltaPercentage.toFixed(1)}% vs Jan${
+                : `${comparison.costDeltaPercentage >= 0 ? "▲ +" : "▼ "}${Math.abs(comparison.costDeltaPercentage).toFixed(1)}% vs Jan${
                     comparison.isCostSurge ? " (Surge)" : ""
                   }`}
             </span>
@@ -140,30 +136,28 @@ export function MonthlyKpiCards() {
         </div>
 
         {/* 3. Monthly Gross Contribution */}
-        <div className="forest-card p-4 rounded-xl border border-forest-border transition-all hover:border-emerald-500/30">
+        <div className="forest-card rounded-2xl p-4 sm:p-5 border border-emerald-500/20 bg-gradient-to-br from-[#0c1f15] via-[#08180f] to-[#040d07] shadow-lg shadow-black/40 transition-all hover:border-emerald-500/40">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-neutral-400 select-none">Gross Contribution</span>
-            <span className="text-base select-none">💰</span>
           </div>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-xl sm:text-2xl font-bold font-mono tracking-tight text-white tabular-nums">
+          <div className="mt-1 flex items-baseline justify-between">
+            <span className="text-2xl sm:text-3xl font-black font-sans tracking-tight text-white tabular-nums">
               {formatINR(currentMonth.grossProfit)}
             </span>
           </div>
-          <div className="mt-2 flex items-center justify-between text-xs">
-            <span className="text-neutral-500 select-none">Gross Food Profit</span>
+          <div className="mt-2.5 flex items-center justify-between text-xs">
             <span
-              className={`px-1.5 py-0.5 rounded font-mono font-medium ${
+              className={`px-2.5 py-0.5 rounded-full font-medium text-[11px] inline-flex items-center gap-1 ${
                 isBaseline
-                  ? "bg-forest-elevated text-neutral-300"
+                  ? "bg-forest-elevated text-neutral-300 border border-neutral-700/50"
                   : comparison.isProfitErosion
-                  ? "bg-red-950/60 text-red-400 border border-red-800/40"
-                  : "bg-emerald-950/60 text-emerald-400 border border-emerald-800/40"
+                  ? "bg-red-950/70 text-red-300 border border-red-800/50"
+                  : "bg-emerald-900/60 text-emerald-300 border border-emerald-700/50"
               }`}
             >
               {isBaseline
                 ? "Baseline"
-                : `${comparison.contributionDeltaPercentage >= 0 ? "+" : ""}${comparison.contributionDeltaPercentage.toFixed(1)}% vs Jan${
+                : `${comparison.contributionDeltaPercentage >= 0 ? "▲ +" : "▼ "}${Math.abs(comparison.contributionDeltaPercentage).toFixed(1)}% vs Jan${
                     comparison.isProfitErosion ? " (Erosion)" : ""
                   }`}
             </span>
@@ -171,30 +165,28 @@ export function MonthlyKpiCards() {
         </div>
 
         {/* 4. Gross Margin % */}
-        <div className="forest-card p-4 rounded-xl border border-forest-border transition-all hover:border-emerald-500/30">
+        <div className="forest-card rounded-2xl p-4 sm:p-5 border border-emerald-500/20 bg-gradient-to-br from-[#0c1f15] via-[#08180f] to-[#040d07] shadow-lg shadow-black/40 transition-all hover:border-emerald-500/40">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-neutral-400 select-none">Gross Margin %</span>
-            <span className="text-base select-none">📈</span>
           </div>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-xl sm:text-2xl font-bold font-mono tracking-tight text-emerald-400 tabular-nums">
+          <div className="mt-1 flex items-baseline justify-between">
+            <span className="text-2xl sm:text-3xl font-black font-sans tracking-tight text-emerald-400 tabular-nums">
               {currentMonth.grossMarginPercentage.toFixed(1)}%
             </span>
           </div>
-          <div className="mt-2 flex items-center justify-between text-xs">
-            <span className="text-neutral-500 select-none">Contribution / Rev</span>
+          <div className="mt-2.5 flex items-center justify-between text-xs">
             <span
-              className={`px-1.5 py-0.5 rounded font-mono font-medium ${
+              className={`px-2.5 py-0.5 rounded-full font-medium text-[11px] inline-flex items-center gap-1 ${
                 isBaseline
-                  ? "bg-forest-elevated text-neutral-300"
+                  ? "bg-forest-elevated text-neutral-300 border border-neutral-700/50"
                   : comparison.isMarginCompressed
-                  ? "bg-red-950/60 text-red-400 border border-red-800/40"
-                  : "bg-emerald-950/60 text-emerald-400 border border-emerald-800/40"
+                  ? "bg-red-950/70 text-red-300 border border-red-800/50"
+                  : "bg-emerald-900/60 text-emerald-300 border border-emerald-700/50"
               }`}
             >
               {isBaseline
                 ? "Baseline"
-                : `${comparison.marginDeltaPercentagePoints >= 0 ? "+" : ""}${comparison.marginDeltaPercentagePoints.toFixed(1)} pts vs Jan`}
+                : `${comparison.marginDeltaPercentagePoints >= 0 ? "▲ +" : "▼ "}${Math.abs(comparison.marginDeltaPercentagePoints).toFixed(1)} pts vs Jan`}
             </span>
           </div>
         </div>

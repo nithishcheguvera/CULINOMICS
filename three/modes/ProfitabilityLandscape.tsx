@@ -9,8 +9,8 @@ import { DataBillboard } from "../components/DataBillboard";
 
 const CATEGORY_COLORS: Record<MenuEngineeringCategory, string> = {
   STAR: "#f59e0b",      // Amber / Gold
-  PLOWHORSE: "#3b82f6", // Blue
-  PUZZLE: "#a855f7",    // Purple
+  PLOWHORSE: "#84cc16", // Vibrant Lime Green (Screen Record 2)
+  PUZZLE: "#38bdf8",    // Sky Cyan / Blue (Screen Record 2)
   DOG: "#ef4444",       // Ruby Red
 };
 
@@ -81,11 +81,29 @@ function DishColumn({ dish, position, height, isSelected, onSelect }: DishColumn
         </>
       )}
 
+      {/* Sparkle star for Star dishes */}
+      {dish.category === "STAR" && !isSelected && (
+        <DataBillboard
+          position={[0, height + 0.35, 0]}
+          title="✨"
+          color="#fbbf24"
+          scale={0.9}
+        />
+      )}
+
       {/* Ground Footprint Rectangular Plate */}
       <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[0.85, 0.85]} />
         <meshBasicMaterial color={baseColor} opacity={isSelected ? 0.85 : 0.25} transparent />
       </mesh>
+
+      {/* Glowing Gold Selected Box Boundary on Floor */}
+      {isSelected && (
+        <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.58, 0.68, 4]} />
+          <meshBasicMaterial color="#f59e0b" />
+        </mesh>
+      )}
     </group>
   );
 }
