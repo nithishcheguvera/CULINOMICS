@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Culinomics — 3D Profit Intelligence Cockpit",
+  title: "CULINOMICS — 3D Profit Intelligence Cockpit",
   description: "3D Restaurant Profit Intelligence & Financial Analytics Cockpit",
 };
 

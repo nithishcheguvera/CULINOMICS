@@ -42,7 +42,7 @@ export const TOUR_STEPS: TourStep[] = [
     title: "Monthly Financial Runway KPIs",
     targetSelector: "#monthly-kpi-cards",
     explanation:
-      "Track verified monthly runway: Gross Revenue, Ingredient Food Cost, Gross Contribution Margin, and Active Dishes. In December 2025, Osteria Bella achieved ₹13,44,800 revenue with a 65.6% contribution margin.",
+      "Track verified monthly runway: Gross Revenue, Ingredient Food Cost, Gross Contribution Margin, and Active Dishes. In December 2025, CULINOMICS achieved ₹13,44,800 revenue with a 65.6% contribution margin.",
     preferredPlacement: "bottom",
   },
   {

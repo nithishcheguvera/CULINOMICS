@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useAppStore } from "@/store/useAppStore";
+import { GoldCoinMark } from "@/components/brand";
 
 export const ONBOARDING_STORAGE_KEY = "culinomics_onboarding_seen";
 
@@ -13,18 +14,19 @@ export function FirstTimeOnboardingModal() {
     setIsOnboardingModalOpen,
     startTour,
     enterDemoMode,
+    isVideoIntroOpen,
   } = store;
 
   useEffect(() => {
     try {
       const hasSeen = localStorage.getItem(ONBOARDING_STORAGE_KEY);
-      if (!hasSeen) {
+      if (!hasSeen && !isVideoIntroOpen) {
         setIsOnboardingModalOpen(true);
       }
     } catch {
       // LocalStorage access restricted in private browsing mode, safe fallback
     }
-  }, [setIsOnboardingModalOpen]);
+  }, [setIsOnboardingModalOpen, isVideoIntroOpen]);
 
   const markSeenAndClose = () => {
     try {
@@ -60,9 +62,7 @@ export function FirstTimeOnboardingModal() {
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-950/80 border border-emerald-500/50 text-emerald-400 flex items-center justify-center font-bold text-xl shadow-lg shadow-emerald-950">
-              🧊
-            </div>
+            <GoldCoinMark size={44} />
             <div>
               <span className="text-[11px] font-mono uppercase tracking-wider text-emerald-400 font-bold">
                 Platform Onboarding

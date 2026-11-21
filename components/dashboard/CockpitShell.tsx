@@ -6,6 +6,8 @@ import { useAppStore, DashboardTab } from "@/store/useAppStore";
 import { AssistantTriggerButton, AssistantDrawer } from "@/components/assistant";
 import { GuidedTour } from "@/components/tour";
 import { DemoModeBanner, FirstTimeOnboardingModal, GuideMenuPopover } from "@/components/onboarding";
+import { GoldCoinMark } from "@/components/brand";
+import { VideoOpeningExperience } from "@/components/intro";
 import { MonthlyKpiCards } from "./MonthlyKpiCards";
 import { DishInspectorCard } from "./DishInspectorCard";
 import { CompactRecipeReplay } from "./CompactRecipeReplay";
@@ -50,20 +52,18 @@ export function CockpitShell({ children }: CockpitShellProps) {
           <div className="flex items-center justify-between h-16">
             {/* Restaurant Brand Identity */}
             <div id="cockpit-header-brand" className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-forest-elevated border border-emerald-500/40 text-emerald-400 flex items-center justify-center font-bold text-lg shadow-sm shadow-emerald-950">
-                OB
-              </div>
+              <GoldCoinMark size={40} />
               <div>
                 <div className="flex items-center space-x-2">
-                  <h1 className="text-base sm:text-lg font-bold tracking-tight text-white">
-                    Osteria Bella
+                  <h1 className="text-base sm:text-lg font-black tracking-widest text-white uppercase">
+                    CULINOMICS
                   </h1>
                   <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-800/60">
                     Live Demo
                   </span>
                 </div>
                 <p className="text-[11px] text-neutral-400 hidden sm:block">
-                  Italian Trattoria • 3D Profit Intelligence Cockpit
+                  3D Profit Intelligence Cockpit
                 </p>
               </div>
             </div>
@@ -194,10 +194,13 @@ export function CockpitShell({ children }: CockpitShellProps) {
       <GuidedTour />
       <FirstTimeOnboardingModal />
 
+      {/* Video Opening Experience (Plays on initial session landing or manual replay) */}
+      <VideoOpeningExperience />
+
       {/* Footer */}
       <footer className="border-t border-forest-border/60 py-4 mt-8 select-none">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-500 gap-2">
-          <p>© 2025 Osteria Bella • Culinomics Profit Intelligence Cockpit</p>
+          <p>© 2025 CULINOMICS • 3D Profit Intelligence Cockpit</p>
           <p className="font-mono text-[11px]">Engine Verified • Pure TypeScript Math • Zero Black-Box AI</p>
         </div>
       </footer>

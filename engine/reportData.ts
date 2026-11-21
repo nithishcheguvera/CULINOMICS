@@ -27,7 +27,7 @@ export function compileExecutiveReportData(params: {
   comboResult?: ComboOptimizationResult | null;
 }): ExecutiveReportData {
   const {
-    restaurantName = "Osteria Bella",
+    restaurantName = "CULINOMICS",
     datasetMode = "Canonical 2025",
     kpis,
     monthlyPerformance,

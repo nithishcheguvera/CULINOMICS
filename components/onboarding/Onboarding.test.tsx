@@ -60,7 +60,7 @@ describe("Stage 11: Onboarding & Demo Components", () => {
 
       expect(html).toContain("data-testid=\"demo-mode-banner\"");
       expect(html).toContain("Demo Sandbox Active");
-      expect(html).toContain("Osteria Bella");
+      expect(html).toContain("CULINOMICS");
       expect(html).toContain("Reset Scenario");
       expect(html).toContain("Exit Demo");
     });

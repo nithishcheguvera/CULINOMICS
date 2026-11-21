@@ -15,6 +15,7 @@ export function GuideMenuPopover() {
     isDemoMode,
     enterDemoMode,
     exitDemoMode,
+    replayVideoIntro,
   } = store;
 
   useEffect(() => {
@@ -79,6 +80,18 @@ export function GuideMenuPopover() {
           >
             <span>🧭</span>
             <span>Start Guided Tour (12 Steps)</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setIsOpen(false);
+              replayVideoIntro();
+            }}
+            data-testid="menu-replay-intro"
+            className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-forest-border/50 transition-colors flex items-center space-x-2 text-amber-300 font-medium cursor-pointer"
+          >
+            <span>🎬</span>
+            <span>Watch Opening Video Intro</span>
           </button>
 
           <button

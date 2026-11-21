@@ -106,7 +106,7 @@ describe("Stage 10 UI: Profit Forecast, Combo Optimizer & Report Export", () => 
       expect(html).toContain("Print / Save PDF Report");
 
       // Document contents
-      expect(html).toContain("Osteria Bella");
+      expect(html).toContain("CULINOMICS");
       expect(html).toContain("Executive Profit Intelligence &amp; Menu Engineering Report");
       expect(html).toContain("1. Annual Financial Performance Summary");
       expect(html).toContain("2. Major Ingredient Inflation Surges");

@@ -21,7 +21,7 @@ export function DemoModeBanner() {
             Demo Sandbox Active
           </span>
           <p className="text-neutral-200 text-xs">
-            Exploring <strong>Osteria Bella</strong> illustrative data. All edits, Menu Surgery tweaks, and forecasts run in memory and do not alter real records.
+            Exploring <strong>CULINOMICS</strong> illustrative demo data. All edits, Menu Surgery tweaks, and forecasts run in memory and do not alter real records.
           </p>
         </div>
 

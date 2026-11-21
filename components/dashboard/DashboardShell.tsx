@@ -3,6 +3,7 @@
 import React from "react";
 import { useAppStore, DashboardTab } from "@/store/useAppStore";
 import { AssistantTriggerButton, AssistantDrawer } from "@/components/assistant";
+import { GoldCoinMark } from "@/components/brand";
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -30,18 +31,16 @@ export function DashboardShell({ children }: DashboardShellProps) {
           <div className="flex items-center justify-between h-16">
             {/* Restaurant Branding */}
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-lg bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center font-bold text-lg shadow-sm">
-                OB
-              </div>
+              <GoldCoinMark size={36} />
               <div>
                 <div className="flex items-center space-x-2">
-                  <h1 className="text-lg font-bold tracking-tight">Osteria Bella</h1>
+                  <h1 className="text-lg font-black tracking-widest uppercase">CULINOMICS</h1>
                   <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
                     Live Demo
                   </span>
                 </div>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                  Italian Cucina & Trattoria • Financial Analytics Cockpit
+                  3D Profit Intelligence Cockpit
                 </p>
               </div>
             </div>
@@ -117,7 +116,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
       {/* Footer */}
       <footer className="border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 py-4 text-center text-xs text-neutral-500 dark:text-neutral-400">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>Osteria Bella • Stage 5 Integrated Dashboard & 3D Explorer</span>
+          <span>CULINOMICS • Stage 5 Integrated Dashboard & 3D Explorer</span>
           <span>Powered by Deterministic TypeScript Engine • Verified Vitest Math</span>
         </div>
       </footer>

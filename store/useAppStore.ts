@@ -221,6 +221,7 @@ export interface AppState {
   isTourOpen: boolean;
   currentTourStep: number;
   isOnboardingModalOpen: boolean;
+  isVideoIntroOpen: boolean;
 
   enterDemoMode: () => Promise<void>;
   exitDemoMode: () => Promise<void>;
@@ -231,6 +232,8 @@ export interface AppState {
   skipTour: () => void;
   setTourStep: (step: number) => void;
   setIsOnboardingModalOpen: (open: boolean) => void;
+  setIsVideoIntroOpen: (open: boolean) => void;
+  replayVideoIntro: () => void;
 }
 
 export interface LiveStateSnapshot {
@@ -377,7 +380,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       const forecastResult = get().getProfitForecast();
       const comboResult = get().getComboOptimization();
       return compileExecutiveReportData({
-        restaurantName: "Osteria Bella",
+        restaurantName: "CULINOMICS",
         datasetMode: datasetMode === "demo" ? "Canonical 2025" : "Custom User Dataset",
         kpis,
         monthlyPerformance,
@@ -771,6 +774,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   isTourOpen: false,
   currentTourStep: 0,
   isOnboardingModalOpen: false,
+  isVideoIntroOpen: true,
 
   enterDemoMode: async () => {
     const { dataset, datasetMode, selectedDishId, selectedTimelineDate, activeTab, activeScenario, demoDatasetBackup } = get();
@@ -927,5 +931,13 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   setIsOnboardingModalOpen: (isOnboardingModalOpen: boolean) => {
     set({ isOnboardingModalOpen });
+  },
+
+  setIsVideoIntroOpen: (isVideoIntroOpen: boolean) => {
+    set({ isVideoIntroOpen });
+  },
+
+  replayVideoIntro: () => {
+    set({ isVideoIntroOpen: true });
   },
 }));
