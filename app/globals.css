@@ -2,22 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap');
+
 :root {
-  --background: #06100C;
-  --foreground: #F0FDF4;
-  --card-bg: rgba(12, 26, 20, 0.85);
-  --card-border: rgba(28, 54, 42, 0.8);
-  --elevated-bg: rgba(18, 36, 28, 0.9);
+  --background: #07140a;
+  --foreground: #f6f1e3;
+  --lime: #a6d81f;
+  --gold: #e8a90f;
+  --gold2: #ffd24a;
+  --ink: #f6f1e3;
+  --mut: rgba(246, 241, 227, 0.62);
+  --card: rgba(11, 32, 15, 0.66);
+  --red: #f05a46;
+  --card-bg: rgba(11, 32, 15, 0.75);
+  --card-border: rgba(255, 210, 74, 0.16);
+  --elevated-bg: rgba(18, 48, 24, 0.85);
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Aurora background animation from menumind */
+@keyframes aurora {
+  to {
+    transform: translate3d(-4%, 3%, 0) rotate(6deg) scale(1.1);
+  }
+}
+
+.aurora-bg {
+  position: fixed;
+  inset: -25%;
+  z-index: -1;
+  pointer-events: none;
+  animation: aurora 16s ease-in-out infinite alternate;
+  background: radial-gradient(40% 40% at 15% 20%, rgba(46, 125, 50, 0.55), transparent),
+              radial-gradient(35% 35% at 85% 80%, rgba(166, 216, 31, 0.22), transparent),
+              radial-gradient(30% 30% at 70% 8%, rgba(232, 169, 15, 0.16), transparent);
 }
 
 /* Tabular numerals for financial alignment */
@@ -25,27 +52,171 @@ body {
   font-feature-settings: "tnum" 1, "zero" 1;
 }
 
-/* Glassmorphism Forest Cards */
+/* Conic gradient spinning border on cards from dashboard.css */
+@property --a {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes spin-conic {
+  to {
+    --a: 360deg;
+  }
+}
+
+@keyframes card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .forest-card {
-  background: var(--card-bg);
+  position: relative;
+  background: var(--card);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  border-radius: 22px;
   border: 1px solid var(--card-border);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+}
+
+.forest-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1.5px;
+  pointer-events: none;
+  background: conic-gradient(from var(--a, 0deg), transparent 0 72%, rgba(255, 210, 74, 0.95) 88%, transparent);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: spin-conic 7s linear infinite;
 }
 
 .forest-card-interactive {
-  background: var(--card-bg);
+  position: relative;
+  background: var(--card);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  border-radius: 22px;
   border: 1px solid var(--card-border);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .forest-card-interactive:hover {
-  background: var(--elevated-bg);
-  border-color: rgba(52, 211, 153, 0.3);
-  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.5), 0 0 15px -3px rgba(16, 185, 129, 0.15);
+  transform: translateY(-4px);
+  border-color: rgba(255, 210, 74, 0.4);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 20px rgba(166, 216, 31, 0.2);
+}
+
+/* Shimmer sheen across KPI cards */
+@keyframes sheen {
+  60%, 100% {
+    left: 130%;
+  }
+}
+
+.kpi-sheen {
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-sheen::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+  transform: skewX(-20deg);
+  animation: sheen 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Pulsing live dot from dashboard.css */
+@keyframes ping2 {
+  0% {
+    box-shadow: 0 0 0 0 rgba(166, 216, 31, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #a6d81f;
+  animation: ping2 1.6s infinite;
+}
+
+/* Play button pulsing glow */
+@keyframes play-ping {
+  70% {
+    box-shadow: 0 0 0 14px transparent;
+  }
+}
+
+.play-btn-pulse {
+  animation: play-ping 2.2s infinite;
+}
+
+/* Range slider custom styling from dashboard.css */
+.culinomics-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 99px;
+  outline: 0;
+  cursor: pointer;
+  background: linear-gradient(90deg, #a6d81f var(--f, 50%), rgba(255, 255, 255, 0.14) var(--f, 50%));
+}
+
+.culinomics-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff6c8, #ffd24a 55%, #e8a90f);
+  border: 2px solid #fff;
+  box-shadow: 0 0 14px rgba(255, 210, 74, 0.8);
+  transition: transform 0.15s;
+}
+
+.culinomics-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.culinomics-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffd24a;
+  border: 2px solid #fff;
+}
+
+/* Animated SVG chart lines from dashboard.css */
+@keyframes chart-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.chart-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: chart-draw 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 /* Prevent text drag-selection on controls and labels */
@@ -60,12 +231,12 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #06100C;
+  background: #07140a;
 }
 ::-webkit-scrollbar-thumb {
   background: #1C362A;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #10B981;
+  background: #a6d81f;
 }
